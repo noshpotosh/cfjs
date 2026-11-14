@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Loops · CFJS</title>
+    <link rel="stylesheet" href="./styles/examples.css" />
+    <script defer src="./vendor/cfjs.js"></script>
+  </head>
+  <body>
+    <cf-include src="./components/shell.html"
+      ><h1>Loops</h1>
+      <p>
+        Inside a data template,
+        <code>cf-loop items="response.rows" as="row"</code> clones its direct
+        template for each array item. The alias augments the parent context;
+        nested loops and included fragments use that context. Non-arrays or
+        invalid aliases fail rendering. Empty arrays use an optional static
+        <code>template data-state="empty"</code>. Rows prepare sequentially and
+        mount together.
+      </p>
+      <p><a href="./examples/nested.html">Run nested loops</a></p></cf-include
+    >
+  </body>
+</html>

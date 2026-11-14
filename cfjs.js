@@ -2,7 +2,7 @@
 // All include and asset paths are relative to the entrypoint document.
 (() => {
   // Markup conventions and runtime limits.
-  const TAGS = { data: 'cf-data', include: 'cf-include' };
+  const TAGS = { data: 'cf-data', include: 'cf-include', loop: 'cf-loop' };
   const BINDINGS = { text: 'cf-text', href: 'cf-href', src: 'cf-src', alt: 'cf-alt' };
   const BINDING_PREFIX = 'cf-';
   const ERROR_ATTRIBUTE = 'data-cf-error';
@@ -11,6 +11,7 @@
     content: ':scope > template:not([data-state])',
     loading: ':scope > template[data-state="loading"]',
     error: ':scope > template[data-state="error"]',
+    empty: ':scope > template[data-state="empty"]',
   };
   const HTTP_PROTOCOLS = ['http:', 'https:'];
   const LINK_PROTOCOLS = [...HTTP_PROTOCOLS, 'mailto:', 'tel:'];
@@ -178,7 +179,19 @@
   async function renderBindings(content, context) {
     for (const element of [...content.children]) {
       if (element.matches(`template, ${TAGS.data}`)) continue;
-      if (element.matches(TAGS.include)) {
+      if (element.matches(TAGS.loop)) {
+        const { items, itemName, template } = prepareLoop(element, context);
+        const output = document.createDocumentFragment();
+
+        for (const item of items) {
+          const rowContent = template.content.cloneNode(true);
+          await renderBindings(rowContent, { ...context, [itemName]: item });
+          output.append(rowContent);
+        }
+
+        if (!items.length) appendEmptyLoopContent(element, output);
+        element.replaceWith(output);
+      } else if (element.matches(TAGS.include)) {
         const includedContent = await composeIncludeFragment(element.getAttribute('src'), [], 0, [...element.childNodes]);
         await renderBindings(includedContent, context);
         element.replaceWith(includedContent);
@@ -268,6 +281,23 @@
     const source = include.getAttribute('src');
     if (!source?.trim()) throw new Error(`Missing include src in ${parentUrl}`);
     return source;
+  }
+
+  function prepareLoop(element, context) {
+    const items = resolveBindingPath(context, element.getAttribute('items'));
+    if (!Array.isArray(items)) throw new Error('cf-loop items must be an array');
+
+    const itemName = element.getAttribute('as');
+    if (!IDENTIFIER_PATTERN.test(itemName || '')) throw new Error('cf-loop requires an item name');
+
+    const template = element.querySelector(TEMPLATES.content);
+    if (!template) throw new Error('cf-loop requires a template');
+    return { items, itemName, template };
+  }
+
+  function appendEmptyLoopContent(element, output) {
+    const emptyTemplate = element.querySelector(TEMPLATES.empty);
+    if (emptyTemplate) output.append(emptyTemplate.content.cloneNode(true));
   }
 
   /**

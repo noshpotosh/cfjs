@@ -90,6 +90,19 @@ module.exports = async function testData(browser, base) {
     assert.equal(await page.locator('img').nth(1).getAttribute('src'), null);
     assert.equal(await page.locator('img').nth(2).getAttribute('src'), null);
     assert.equal(await page.locator('img').first().getAttribute('alt'), 'CFJS project mark');
+    await page.goto(base + 'docs/examples/nested.html');
+    await page.locator('.project').first().waitFor();
+    assert.equal(await page.locator('.project').count(), 2);
+    assert.deepEqual(await page.locator('li').allTextContents(), ['HTML', 'CSS', 'JavaScript']);
+    await page.evaluate(() => {
+        window.loopRows = [1];
+        const host = document.createElement('cf-data');
+        host.id = 'invalid-alias'; host.setAttribute('source', 'loopRows'); host.setAttribute('name', 'rows');
+        host.innerHTML = '<template><cf-loop items="rows" as="bad-name"><template></template></cf-loop></template>';
+        document.body.append(host);
+    });
+    await page.locator('#invalid-alias[data-cf-error]').waitFor();
+    assert.match(await page.locator('#invalid-alias').getAttribute('data-cf-error'), /item name/);
     await context.close();
     console.log('PASS: JSON/global data, promises, failures, caching, disconnected data, and safe attribute bindings');
 };

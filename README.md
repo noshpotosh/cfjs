@@ -9,6 +9,7 @@ Compose trusted HTML fragments in the browser with one script and no build step.
 - [Scripts and styles](docs/scripts.html)
 - [Data](docs/cf-data.html)
 - [Bindings](docs/bindings.html)
+- [Loops](docs/cf-loop.html)
 
 ## Development
 
