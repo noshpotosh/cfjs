@@ -33,6 +33,9 @@ module.exports = async (browser, origin) => {
   assert.equal(await page.getByText('Assigned title', { exact: true }).count(), 1);
   assert(await page.getByText('Second fallback', { exact: false }).count());
   assert.equal(await page.getByText('Discarded', { exact: true }).count(), 0);
+  await page.goto(origin + '/docs/examples/scripts.html');
+  await page.locator('section[data-external="ready"]').waitFor();
+  assert.equal(await page.locator('.status').textContent(), 'Inline script ran after mounting.');
   assert.deepEqual(errors, []);
   await page.close();
   console.log('PASS: directly served documentation, local links, three layouts, runnable composition and slot assignment');

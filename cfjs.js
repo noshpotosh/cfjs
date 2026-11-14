@@ -7,10 +7,12 @@
   const EVENTS = { load: 'cf:load', error: 'cf:error' };
   const HTTP_PROTOCOLS = ['http:', 'https:'];
   const MAX_INCLUDE_DEPTH = 32;
+  const SCRIPT_PLACEHOLDER = 'cf-script';
 
   // Shared requests and mounted-element state live for this runtime instance.
   const includeRequests = new Map();
   const elementJobs = new WeakMap();
+  const mountedStyles = new Set();
 
   // Custom elements and core composition operations.
   class CFInclude extends HTMLElement {
@@ -89,11 +91,34 @@
     return content;
   }
 
-  // Scripts stay inert until script activation is introduced.
+  /**
+   * Mount content, deduplicate styles, and activate scripts once the DOM is complete.
+   * @param {HTMLElement} element Mount target.
+   * @param {DocumentFragment} content Prepared content to insert.
+   * @param {boolean} [replace=false] Replace the target instead of its children.
+   * @returns {void} Does not wait for external scripts or modules.
+   */
   function mountContent(element, content, replace = false) {
-    for (const script of content.querySelectorAll('script')) script.remove();
+    // Parser-created template scripts can execute when their clones are mounted.
+    // Hold them out of the DOM until our single activation pass.
+    const scripts = [...content.querySelectorAll('script')].map(inert => {
+      const placeholder = document.createComment(SCRIPT_PLACEHOLDER);
+      inert.replaceWith(placeholder);
+      return { inert, placeholder };
+    });
+
+    for (const style of content.querySelectorAll('style')) {
+      const css = style.textContent.trim();
+      if (!mountedStyles.has(css)) {
+        mountedStyles.add(css);
+        document.head.insertBefore(style, document.querySelector('link[rel="stylesheet"]'));
+      } else style.remove();
+    }
+
     if (replace) element.replaceWith(content);
     else element.replaceChildren(content);
+
+    activateScripts(scripts);
   }
 
   // Helpers follow the loading, composition, binding, and activation flow.
@@ -131,6 +156,26 @@
     const source = include.getAttribute('src');
     if (!source?.trim()) throw new Error(`Missing include src in ${parentUrl}`);
     return source;
+  }
+
+  /**
+   * Recreate inert scripts at connected placeholders in document order.
+   * @param {Array<{inert: HTMLScriptElement, placeholder: Comment}>} scripts Scripts held during mounting.
+   * @returns {void} External scripts and modules retain native loading behavior.
+   */
+  function activateScripts(scripts) {
+    for (const { inert, placeholder } of scripts) {
+      if (!placeholder.isConnected) continue;
+      const script = document.createElement('script');
+      for (const attribute of inert.attributes) script.setAttribute(attribute.name, attribute.value);
+
+      // Non-async external classics keep insertion order with one another.
+      // Inline scripts do not wait for them; defer has no parser-time meaning.
+      if (inert.hasAttribute('src') && !inert.hasAttribute('async')) script.async = false;
+      if (inert.nonce) script.nonce = inert.nonce; // Connected elements may hide the nonce attribute.
+      script.textContent = inert.textContent;
+      placeholder.replaceWith(script);
+    }
   }
 
   // Register only after shared state and the element class are ready.

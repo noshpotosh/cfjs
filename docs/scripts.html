@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Scripts and styles · CFJS</title>
+    <link rel="stylesheet" href="./styles/examples.css" />
+    <script defer src="./vendor/cfjs.js"></script>
+  </head>
+  <body>
+    <cf-include src="./components/shell.html"
+      ><h1>Scripts and styles</h1>
+      <p>
+        Trusted fragment scripts activate once per mounted instance after the
+        full DOM is present. Inline classics execute in order. Non-async
+        external classics keep insertion order but inline scripts do not wait
+        for them. Modules and async scripts retain native browser behavior;
+        defer has no parser-time meaning. Load events do not wait for external
+        scripts or modules. Nonces are preserved. Identical trimmed inline
+        styles are deduplicated in the document head, before the first
+        stylesheet link. Nested template scripts stay inert.
+      </p>
+      <p>
+        <a href="./examples/scripts.html">Run the script example</a>
+      </p></cf-include
+    >
+  </body>
+</html>
