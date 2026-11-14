@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="CFJS documentation: Quickstart" />
+    <title>Quickstart · CFJS</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./styles/docs.css" />
+    <script defer src="./scripts/data.js"></script>
+    <script defer src="./vendor/cfjs.js"></script>
+    <script type="module" src="./scripts/docs.js"></script>
+  </head>
+  <body data-topic="quickstart">
+    <cf-include src="./components/shell.html">
+      <div class="page-heading">
+        <p class="breadcrumb">
+          <a href="./index.html">Docs</a>
+          <span aria-hidden="true">/</span> Getting started
+        </p>
+        <h1 id="quickstart">Quickstart</h1>
+      </div>
+      <section class="reference-row" aria-labelledby="install">
+        <div class="explanation">
+          <h2 id="install">Load the runtime</h2>
+          <p>
+            Download <a href="./vendor/cfjs.js" download>cfjs.js</a> beside your
+            page. Load it with
+            <code>&lt;script defer src="./cfjs.js"&gt;&lt;/script&gt;</code> and
+            explicitly close custom-element tags. Serve the directory over
+            HTTP(S), rather than opening a file URL.
+          </p>
+          <p>
+            The hosted examples keep the runtime in the docs vendor directory
+            and use <code>../vendor/cfjs.js</code>. Change that script path to
+            <code>./cfjs.js</code> when placing the runtime beside your page.
+            The example stylesheet only formats the preview.
+          </p>
+        </div>
+        <div class="examples">
+          <p>
+            <a href="./examples/hello.html">Open One-time data rendering</a>
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="files">
+        <div class="explanation">
+          <h2 id="files">Create a fragment</h2>
+          <p>
+            Create <code>card.html</code> and include it from
+            <code>index.html</code>. The live example shows the same files
+            served with this documentation. Each path is relative to the entry
+            document, including paths inside fragments.
+          </p>
+          <p>
+            The include wrapper disappears after the fragment is ready. Before
+            that, its children provide visible fallback content. On failure,
+            those original nodes remain. See
+            <a href="./cf-include.html">the include reference</a>.
+          </p>
+        </div>
+        <div class="examples">
+          <p>
+            <a href="./examples/composition.html"
+              >Open Include with named and default slots</a
+            >
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="next">
+        <div class="explanation">
+          <h2 id="next">Add data</h2>
+          <p>
+            For a dynamic title, define a property on <code>window</code> before
+            the runtime runs. A data template reads it through the alias in
+            <code>name</code>. Continue with
+            <a href="./render-data.html">Render JSON and global data</a>.
+          </p>
+        </div>
+      </section>
+      <p>
+        CFJS composition and data rendering run entirely in the browser. Serve
+        the authored HTML and runtime directly over HTTP(S); JavaScript is
+        required.
+      </p>
+    </cf-include>
+    <noscript
+      ><p>
+        CFJS documentation requires JavaScript. Enable it to load the topics and
+        examples.
+      </p></noscript
+    >
+  </body>
+</html>

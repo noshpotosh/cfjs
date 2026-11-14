@@ -3,26 +3,98 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="CFJS documentation: Scripts and styles" />
     <title>Scripts and styles · CFJS</title>
-    <link rel="stylesheet" href="./styles/examples.css" />
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./styles/docs.css" />
+    <script defer src="./scripts/data.js"></script>
     <script defer src="./vendor/cfjs.js"></script>
+    <script type="module" src="./scripts/docs.js"></script>
   </head>
-  <body>
-    <cf-include src="./components/shell.html"
-      ><h1>Scripts and styles</h1>
-      <p>
-        Trusted fragment scripts activate once per mounted instance after the
-        full DOM is present. Inline classics execute in order. Non-async
-        external classics keep insertion order but inline scripts do not wait
-        for them. Modules and async scripts retain native browser behavior;
-        defer has no parser-time meaning. Load events do not wait for external
-        scripts or modules. Nonces are preserved. Identical trimmed inline
-        styles are deduplicated in the document head, before the first
-        stylesheet link. Nested template scripts stay inert.
-      </p>
-      <p>
-        <a href="./examples/scripts.html">Run the script example</a>
-      </p></cf-include
+  <body data-topic="scripts">
+    <cf-include src="./components/shell.html">
+      <div class="page-heading">
+        <p class="breadcrumb">
+          <a href="./index.html">Docs</a>
+          <span aria-hidden="true">/</span> Reference
+        </p>
+        <h1 id="scripts">Scripts and styles</h1>
+      </div>
+      <section class="reference-row" aria-labelledby="activation">
+        <div class="explanation">
+          <h2 id="activation">Script activation</h2>
+          <p>
+            CFJS recreates active scripts once after mounting an include tree or
+            successful data result. Scripts selected from data, loop, or
+            conditional templates wait for this activation pass; unselected
+            conditional branches remain inert. Attributes, nonce, and script
+            text are copied; CFJS does not use eval. Inline classic scripts run
+            in DOM order with the complete mounted tree present. Nested branches
+            prepare sequentially; no branch activates early. Use a function
+            wrapper to isolate each instance’s variables. The example’s fragment
+            runs an inline script and loads
+            <code>../scripts/examples/status.js</code>, which marks its mounted
+            section with <code>data-external="ready"</code>. Open the standalone
+            example to try it.
+          </p>
+        </div>
+        <div class="examples">
+          <p>
+            <a href="./examples/scripts.html">Open Inline script activation</a>
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="ordering">
+        <div class="explanation">
+          <h2 id="ordering">Ordering and readiness</h2>
+          <p>
+            External classic scripts without <code>async</code> preserve
+            insertion order relative to one another. Inline scripts do not wait
+            for those external scripts. <code>defer</code> has no parser-time
+            meaning on these dynamically created scripts. Async scripts follow
+            native scheduling.
+          </p>
+          <p>
+            Modules are asynchronous. External modules evaluate once per
+            resolved URL; inline module bodies run per inclusion. Template
+            scripts remain inert and non-JavaScript data scripts remain data.
+            Browser CSP, integrity, and native script rules still apply. Native
+            script errors do not roll back markup or turn into include errors.
+          </p>
+          <p>
+            A source defined by an inline classic script in the same include is
+            ready for its data elements. A source defined later by a module or
+            external script may not be ready.
+            <a href="./events.html#cf-load">cf:load</a> is not a
+            wait-for-all-assets event.
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="styles">
+        <div class="explanation">
+          <h2 id="styles">Styles</h2>
+          <p>
+            Active <code>style</code> blocks move into the document head before
+            its first stylesheet link. Duplicate blocks are identified by
+            trimmed CSS text and removed. Styles remain global and remain after
+            their component disappears. Progressive sibling styles arrive in
+            completion order; use page styles for predictable shared layout.
+            There is no instance scoping or automatic cleanup. Ordinary linked
+            stylesheets follow native browser behavior.
+          </p>
+          <p>
+            Follow <a href="./compose.html">Compose reusable fragments</a>;
+            review <a href="./migration.html">Migration</a> if moving from the
+            original includes-only snapshot.
+          </p>
+        </div>
+      </section>
+    </cf-include>
+    <noscript
+      ><p>
+        CFJS documentation requires JavaScript. Enable it to load the topics and
+        examples.
+      </p></noscript
     >
   </body>
 </html>

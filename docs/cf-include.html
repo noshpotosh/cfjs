@@ -3,24 +3,145 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Includes · CFJS</title>
-    <link rel="stylesheet" href="./styles/examples.css" />
+    <meta name="description" content="CFJS documentation: cf-include" />
+    <title>cf-include · CFJS</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./styles/docs.css" />
+    <script defer src="./scripts/data.js"></script>
     <script defer src="./vendor/cfjs.js"></script>
+    <script type="module" src="./scripts/docs.js"></script>
   </head>
-  <body>
-    <cf-include src="./components/shell.html"
-      ><h1>Includes</h1>
+  <body data-topic="cf-include">
+    <cf-include src="./components/shell.html">
+      <div class="page-heading">
+        <p class="breadcrumb">
+          <a href="./index.html">Docs</a>
+          <span aria-hidden="true">/</span> Reference
+        </p>
+        <h1 id="cf-include">cf-include</h1>
+      </div>
       <p>
-        Use
-        <code
-          >&lt;cf-include
-          src="./fragment.html"&gt;Fallback&lt;/cf-include&gt;</code
-        >
-        to compose a fragment. Nested branches prepare in document order;
-        separate live includes start independently. A complete tree mounts
-        atomically. Failures retain the original fallback nodes and listeners.
-        Successful requests are cached; new includes can retry failed requests.
-      </p></cf-include
+        Fetch an HTML fragment, compose nested includes and slots, and replace
+        the include element with fresh DOM.
+      </p>
+      <pre><code class="language-html">&lt;cf-include src=&quot;./card.html&quot;&gt;Loading card…&lt;/cf-include&gt;</code></pre>
+      <section class="reference-row" aria-labelledby="attributes">
+        <div class="explanation">
+          <h2 id="attributes">Attributes</h2>
+          <dl class="attributes">
+            <div>
+              <dt>
+                <h3 id="src"><code>src</code></h3>
+                <span class="type">URL · required</span>
+              </dt>
+              <dd>
+                A non-whitespace HTTP(S) URL resolved against the entry
+                document’s <code>document.baseURI</code>. No default. URL hashes
+                are removed before requesting HTML; query strings remain. Nested
+                paths use the same page base, including after redirects. See
+                <a href="./paths.html">Paths and requests</a>.
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="children">
+        <div class="explanation">
+          <h2 id="children">Children and slots</h2>
+          <p>
+            Children remain visible while loading and on failure. On success,
+            cloned children are supplied to matching
+            <a href="./slots.html">slots</a> in the fragment; unmatched children
+            are discarded. Nested includes in fallback content are not
+            independently expanded before their owning include completes.
+            Ordinary includes do not evaluate bindings; includes rendered inside
+            a data template inherit its context.
+          </p>
+        </div>
+        <div class="examples">
+          <p>
+            <a href="./examples/composition.html"
+              >Open Include with named and default slots</a
+            >
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="dom">
+        <div class="explanation">
+          <h2 id="dom">Resulting DOM and timing</h2>
+          <p>
+            The wrapper is removed. By default, an include tree, including
+            nested fragments, is prepared before insertion. Nested branches
+            prepare sequentially in document order. Separate live outer includes
+            start independently. Fetch completion order does not change DOM
+            order, style precedence, or inline classic script activation order.
+            Scripts activate after insertion; styles move to the head. Only the
+            mounted outer tree emits the include load event, from its former
+            parent. See <a href="./scripts.html">Scripts and styles</a> and
+            <a href="./events.html">Events and lifecycle</a>.
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="progressive">
+        <div class="explanation">
+          <h2 id="progressive">Atomic mounting only</h2>
+          <p>
+            The former <code>progressive</code> attribute is ignored. A parent
+            waits for every nested include before mounting. Put critical content
+            in initial HTML or use separate live includes for independent
+            loading. See
+            <a href="./migration.html#portfolio-runtime">migration notes</a>.
+          </p>
+        </div>
+        <div class="examples" data-example="progressive"></div>
+      </section>
+      <section class="reference-row" aria-labelledby="parallel">
+        <div class="explanation">
+          <h2 id="parallel">Sequential branches, ordered activation</h2>
+          <p>
+            The second panel starts loading after the first branch has finished
+            preparation. Their scripts run in document order only after the
+            whole tree is ready, so the second panel can use the first panel’s
+            inline classic helper. Network requests must not depend on another
+            fragment’s script executing first.
+          </p>
+        </div>
+        <div class="examples">
+          <p>
+            <a href="./examples/parallel.html"
+              >Open Sequential panels with ordered scripts</a
+            >
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="failure">
+        <div class="explanation">
+          <h2 id="failure">Loading and failure</h2>
+          <p>
+            There are no state-template attributes for includes: use ordinary
+            fallback children. An empty fragment successfully removes the
+            wrapper and inserts nothing. In default atomic mode, a nested
+            failure preserves the outer wrapper and its original fallback nodes,
+            state, and listeners. Failure sets <code>data-cf-error</code>, emits
+            <code>cf:error</code>, and logs a console error.
+          </p>
+          <p>
+            If one branch fails, later branches in that tree are not prepared
+            and none of the failed tree mounts or activates scripts. There is no
+            HTML request timeout. Successful and in-flight requests are cached;
+            failed fetches are evicted. Create a new element to retry. Attribute
+            changes and reconnection do not reload. Removed includes ignore late
+            successful results; removal does not cancel fetches. See
+            <a href="./compose.html">Compose reusable fragments</a>.
+          </p>
+        </div>
+      </section>
+    </cf-include>
+    <noscript
+      ><p>
+        CFJS documentation requires JavaScript. Enable it to load the topics and
+        examples.
+      </p></noscript
     >
   </body>
 </html>

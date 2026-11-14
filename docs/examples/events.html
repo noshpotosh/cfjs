@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CFJS live example</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="../styles/examples.css" />
+    <script>
+      document.addEventListener("cf:load", (event) => {
+        document.querySelector("#event-log").textContent =
+          `cf:load target: ${event.target.tagName.toLowerCase()}, src: ${event.detail.src}`;
+      });
+    </script>
+    <script defer src="../vendor/cfjs.js"></script>
+  </head>
+  <body>
+    <cf-include src="./card.html"
+      ><h2 slot="heading">Include mounted</h2>
+      <p>Watch the event log below.</p></cf-include
+    >
+    <output id="event-log" aria-live="polite">Waiting…</output>
+  </body>
+</html>

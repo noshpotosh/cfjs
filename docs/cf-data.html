@@ -3,28 +3,205 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Data · CFJS</title>
-    <link rel="stylesheet" href="./styles/examples.css" />
+    <meta name="description" content="CFJS documentation: cf-data" />
+    <title>cf-data · CFJS</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./styles/docs.css" />
+    <script defer src="./scripts/data.js"></script>
     <script defer src="./vendor/cfjs.js"></script>
+    <script type="module" src="./scripts/docs.js"></script>
   </head>
-  <body>
-    <cf-include src="./components/shell.html"
-      ><h1>Data</h1>
+  <body data-topic="cf-data">
+    <cf-include src="./components/shell.html">
+      <div class="page-heading">
+        <p class="breadcrumb">
+          <a href="./index.html">Docs</a>
+          <span aria-hidden="true">/</span> Reference
+        </p>
+        <h1 id="cf-data">cf-data</h1>
+      </div>
       <p>
-        Use <code>cf-data</code> with exactly one of <code>src</code> (HTTP(S)
-        JSON) or <code>source</code> (a global own-property path), plus a valid
-        identifier <code>name</code> and a direct template. Global values,
-        promises and functions are supported; functions are called without a
-        receiver. Loading and error templates use <code>data-state</code>. JSON
-        requests share a page-lifetime cache, time out after ten seconds, and
-        failures may be retried by a new element. Rendering is one-time and
-        atomic; nested data providers resolve independently from globals with
-        their own aliases.
+        Load one JSON response or global value and render it once into a
+        retained <code>cf-data</code> element.
       </p>
+      <pre><code class="language-html">&lt;cf-data src=&quot;./data/examples/projects.json&quot; name=&quot;response&quot;&gt;
+        &lt;template&gt;&lt;h2 cf-text=&quot;response.title&quot;&gt;&lt;/h2&gt;&lt;/template&gt;
+      &lt;/cf-data&gt;</code></pre>
+      <section class="reference-row" aria-labelledby="attributes">
+        <div class="explanation">
+          <h2 id="attributes">Attributes</h2>
+          <dl class="attributes">
+            <div>
+              <dt>
+                <h3 id="src"><code>src</code></h3>
+                <span class="type">URL · required alternative</span>
+              </dt>
+              <dd>
+                An HTTP(S) JSON URL relative to <code>document.baseURI</code>.
+                Supply exactly one non-empty <code>src</code> or
+                <code>source</code>; neither has a default. Successful and
+                in-flight JSON requests are shared by resolved absolute URL for
+                the document lifetime. A request times out after 10 seconds;
+                failed requests are evicted.
+              </dd>
+            </div>
+            <div>
+              <dt>
+                <h3 id="source"><code>source</code></h3>
+                <span class="type">Property path · required alternative</span>
+              </dt>
+              <dd>
+                An own-property path on <code>window</code> only, such as
+                <code>projectData</code> or <code>app.projects</code>. Dotted
+                segments follow the
+                <a href="./bindings.html#property-paths">binding path rules</a>.
+                Undefined is an unknown-source error; <code>null</code>,
+                <code>false</code>, and <code>0</code> are valid values. A
+                function is called without arguments or a receiver; its result,
+                or a promise value, is awaited. Providers handle their own
+                timeouts and caching. Sources must exist when lookup begins;
+                there is no retry or wait for later definitions.
+              </dd>
+            </div>
+            <div>
+              <dt>
+                <h3 id="name"><code>name</code></h3>
+                <span class="type">Identifier · required</span>
+              </dt>
+              <dd>
+                The response alias. Use a JavaScript-style identifier: letters,
+                underscore or dollar sign initially, then letters, digits,
+                underscore or dollar sign. There is no default. This alias is
+                the only initial binding in the template context.
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="templates">
+        <div class="explanation">
+          <h2 id="templates">Child templates and scope</h2>
+          <p>
+            The first direct <code>template</code> without a
+            <code>data-state</code> attribute supplies the result. It is
+            required. The first direct template with each supported state
+            supplies optional fallback markup. Templates themselves are consumed
+            when the element replaces its children.
+          </p>
+          <dl class="attributes">
+            <div>
+              <dt>
+                <h3 id="loading"><code>loading</code></h3>
+                <span class="type">data-state value · optional</span>
+              </dt>
+              <dd>
+                Cloned immediately while the element loads, replacing its
+                children. Static markup; bindings are not evaluated.
+              </dd>
+            </div>
+            <div>
+              <dt>
+                <h3 id="error"><code>error</code></h3>
+                <span class="type">data-state value · optional</span>
+              </dt>
+              <dd>
+                Cloned after source, request, JSON parsing, or rendering
+                failure. Static markup with no error binding context. Without
+                it, CFJS creates
+                <code
+                  >&lt;p role="alert"&gt;Content could not load.&lt;/p&gt;</code
+                >.
+              </dd>
+            </div>
+          </dl>
+          <p>
+            Bindings and loops run inside the result template. Includes inherit
+            that context. A nested <code>cf-data</code> starts independently
+            after its parent mounts. Its <code>source</code> reads only
+            <code>window</code>, never an enclosing data or loop alias. Its
+            result template starts with only its own <code>name</code> alias.
+          </p>
+        </div>
+        <div class="examples">
+          <p><a href="./examples/json.html">Open JSON response</a></p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="timing">
+        <div class="explanation">
+          <h2 id="timing">Resulting DOM and timing</h2>
+          <p>
+            The <code>cf-data</code> wrapper stays; successful output replaces
+            all its children. Lookup starts in a microtask after connection.
+            Inline classic scripts activated by the same include run first, but
+            asynchronous scripts and modules may still be pending. Rendering is
+            one-time, including after removal and reconnection. Attribute
+            changes do not trigger rendering.
+          </p>
+          <p>
+            <code>aria-busy="true"</code> is set while loading and removed
+            afterward. Disconnected elements ignore late success and failure
+            output; requests continue. See
+            <a href="./events.html">Events and lifecycle</a>.
+          </p>
+        </div>
+        <div class="examples">
+          <p><a href="./examples/global.html">Open Global source</a></p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="failure">
+        <div class="explanation">
+          <h2 id="failure">Empty results, failures, and retry</h2>
+          <p>
+            There is no data-level empty state: use
+            <a href="./cf-loop.html#empty">a loop empty template</a> for an
+            empty array. A valid null response can produce blank bindings.
+            Failure sets <code>data-cf-error</code> and emits a bubbling
+            <code>cf:error</code> with <code>detail.error</code>. No automatic
+            retry occurs. Create a new element to retry; a failed JSON request
+            can then be requested again.
+          </p>
+          <p>
+            Follow
+            <a href="./render-data.html">Render JSON and global data</a> for a
+            complete task.
+          </p>
+        </div>
+        <div class="examples">
+          <p>
+            <a href="./examples/states.html"
+              >Open Loading, empty, and failure states</a
+            >
+          </p>
+        </div>
+      </section>
       <p>
-        <a href="./examples/json.html">JSON example</a> ·
-        <a href="./examples/global.html">Global provider example</a>
-      </p></cf-include
+        Use <a href="./cf-if.html">cf-if</a> to choose a branch once in the
+        current data or loop context. Only the selected template is rendered;
+        nested data resolves its source on window and gives its result a
+        separate scope. Loading, error, and loop empty templates remain static.
+      </p>
+
+      <section class="reference-row" aria-labelledby="nested-sources">
+        <div class="explanation">
+          <h2 id="nested-sources">Independent global sources</h2>
+          <p>
+            Use a nested global source for optional details. A zero-argument
+            global function starts when the nested element connects, so the
+            parent can appear before optional requests finish. Each nested
+            element owns its loading/error templates and events. Parent
+            readiness does not imply nested completion. Row-specific values must
+            be prepared in the parent and rendered with bindings, loops, or
+            conditions; nested source paths cannot interpolate row IDs.
+          </p>
+        </div>
+        <div class="examples" data-example="independent"></div>
+      </section>
+    </cf-include>
+    <noscript
+      ><p>
+        CFJS documentation requires JavaScript. Enable it to load the topics and
+        examples.
+      </p></noscript
     >
   </body>
 </html>

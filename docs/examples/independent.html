@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Independent global sources · CFJS example</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="../styles/examples.css" />
+    <script src="../scripts/examples/independent.js"></script>
+    <script defer src="../vendor/cfjs.js"></script>
+  </head>
+  <body>
+    <cf-data source="independentRows" name="rows">
+      <template
+        ><cf-loop items="rows" as="row"
+          ><template>
+            <article>
+              <h2 cf-text="row.title"></h2>
+              <cf-data source="optionalDetails" name="details">
+                <template><p cf-text="details.description"></p></template>
+                <template data-state="loading"
+                  ><p role="status">Loading details…</p></template
+                >
+                <template data-state="error"
+                  ><p role="alert">Details unavailable.</p></template
+                >
+              </cf-data>
+            </article>
+          </template></cf-loop
+        ></template
+      >
+    </cf-data>
+  </body>
+</html>

@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Atomic include trees</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="../styles/examples.css" />
+    <script defer src="../vendor/cfjs.js"></script>
+  </head>
+  <body>
+    <h1>Atomic include trees</h1>
+    <p>
+      The parent and child appear together after the complete tree is ready. The
+      legacy progressive attribute has no effect.
+    </p>
+    <cf-include progressive src="./progressive-parent.html"
+      >Loading parent…</cf-include
+    >
+  </body>
+</html>

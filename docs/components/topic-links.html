@@ -1,0 +1,21 @@
+<cf-data source="docsNeighbors" name="neighbors">
+  <template>
+    <nav class="topic-links" aria-label="Previous and next topics">
+      <cf-loop items="neighbors" as="topic"
+        ><template>
+          <cf-if test="topic.href">
+            <template
+              ><a cf-href="topic.href"
+                ><span cf-text="topic.label"></span
+                ><span cf-text="topic.title"></span>
+                <span aria-hidden="true" cf-text="topic.arrow"></span></a
+            ></template>
+            <template data-state="else"><span></span></template>
+          </cf-if> </template
+      ></cf-loop>
+    </nav>
+  </template>
+  <template data-state="error"
+    ><p role="alert">Topic links could not load. Refresh to retry.</p></template
+  >
+</cf-data>

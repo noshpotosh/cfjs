@@ -3,23 +3,165 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="CFJS documentation: Bindings" />
     <title>Bindings · CFJS</title>
-    <link rel="stylesheet" href="./styles/examples.css" />
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./styles/docs.css" />
+    <script defer src="./scripts/data.js"></script>
     <script defer src="./vendor/cfjs.js"></script>
+    <script type="module" src="./scripts/docs.js"></script>
   </head>
-  <body>
-    <cf-include src="./components/shell.html"
-      ><h1>Bindings</h1>
+  <body data-topic="bindings">
+    <cf-include src="./components/shell.html">
+      <div class="page-heading">
+        <p class="breadcrumb">
+          <a href="./index.html">Docs</a>
+          <span aria-hidden="true">/</span> Reference
+        </p>
+        <h1 id="bindings">Bindings</h1>
+      </div>
       <p>
-        Inside a data template, bind own-property paths through
-        <code>cf-text</code>, <code>cf-href</code>, <code>cf-src</code>,
-        <code>cf-alt</code>, <code>cf-id</code>, <code>cf-title</code>,
-        <code>cf-aria-*</code> and <code>cf-data-*</code>. Text is escaped
-        through textContent. Missing values become empty strings. Unsafe path
-        segments and unsupported bindings fail rendering. Links permit HTTP(S),
-        mailto and tel; image sources require HTTP(S). This is not an expression
-        evaluator or sanitizer.
-      </p></cf-include
+        Write text or a supported attribute from a property path during data
+        rendering. Bindings are not processed in ordinary page markup or
+        standalone includes.
+      </p>
+      <section class="reference-row" aria-labelledby="property-paths">
+        <div class="explanation">
+          <h2 id="property-paths">Property paths and conversion</h2>
+          <p>
+            Each segment must match <code>[A-Za-z_$][\w$]*</code>. Use dotted
+            own-property paths, such as <code>project.author.name</code>.
+            Prototype traversal and segments <code>__proto__</code>,
+            <code>constructor</code>, and <code>prototype</code> are rejected.
+            Expressions, array indexes, bracket access, and interpolation are
+            unsupported.
+          </p>
+          <p>
+            Values convert with <code>String(value ?? "")</code>. Null,
+            undefined, and missing properties become an empty string; false
+            becomes <code>"false"</code>, zero becomes <code>"0"</code>, arrays
+            and objects use JavaScript string conversion. Invalid paths and
+            unsupported <code>cf-*</code> attributes on ordinary rendered
+            elements fail the data render. Each successfully applied binding
+            attribute is removed.
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="cf-text">
+        <div class="explanation">
+          <h2 id="cf-text">cf-text</h2>
+          <p>
+            Sets <code>textContent</code>, replacing all existing children.
+            Empty values clear the text. Markup is treated as text, never parsed
+            as HTML.
+          </p>
+        </div>
+        <div class="examples">
+          <p>
+            <a href="./examples/bindings.html"
+              >Open Text and attribute bindings</a
+            >
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="cf-href">
+        <div class="explanation">
+          <h2 id="cf-href">cf-href</h2>
+          <p>
+            Sets <code>href</code> for a non-empty URL whose resolved protocol
+            is HTTP, HTTPS, mailto, or tel. Relative URLs and fragment links are
+            allowed and resolved against the page base. Empty or disallowed
+            schemes remove an existing href. A malformed URL that throws during
+            parsing fails rendering; it is not silently removed.
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="cf-src">
+        <div class="explanation">
+          <h2 id="cf-src">cf-src</h2>
+          <p>
+            Sets <code>src</code> for a non-empty HTTP or HTTPS URL. Relative
+            URLs resolve against the page base. Empty values and other schemes
+            (including data, blob, and javascript) remove an existing src.
+            Malformed URLs fail rendering. Use this on images; CFJS does not
+            check file availability or handle image load failures.
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="cf-alt">
+        <div class="explanation">
+          <h2 id="cf-alt">cf-alt</h2>
+          <p>
+            Sets an image’s <code>alt</code> to the converted string. Empty
+            values preserve <code>alt=""</code> for decorative images.
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="cf-id">
+        <div class="explanation">
+          <h2 id="cf-id">cf-id</h2>
+          <p>
+            Sets <code>id</code> to the converted string. An empty string
+            removes an existing id. CFJS does not ensure uniqueness.
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="cf-title">
+        <div class="explanation">
+          <h2 id="cf-title">cf-title</h2>
+          <p>
+            Sets <code>title</code> to the converted string; an empty string
+            removes the attribute.
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="cf-aria">
+        <div class="explanation">
+          <h2 id="cf-aria">cf-aria-*</h2>
+          <p>
+            A binding such as <code>cf-aria-label="project.label"</code> writes
+            <code>aria-label</code>. The suffix accepts word characters and
+            hyphens. Empty values remove the target attribute; false writes the
+            string <code>"false"</code>, rather than removing it.
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="cf-data">
+        <div class="explanation">
+          <h2 id="cf-data">cf-data-*</h2>
+          <p>
+            A binding such as <code>cf-data-kind="project.kind"</code> writes
+            <code>data-kind</code>. The suffix accepts word characters and
+            hyphens. Empty values remove the target attribute; false and zero
+            remain string values.
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="scope">
+        <div class="explanation">
+          <h2 id="scope">Scope and timing</h2>
+          <p>
+            Bindings run once on ordinary elements in the result template,
+            before mounting. Templates and nested data elements are skipped.
+            Loops add an item alias; includes and their assigned slot content
+            inherit that context. Loading, error, and empty fallbacks do not
+            receive bindings. See
+            <a href="./render-data.html">Render JSON and global data</a>.
+          </p>
+        </div>
+      </section>
+      <p>
+        Use <a href="./cf-if.html">cf-if</a> to choose a branch once in the
+        current data or loop context. Only the selected template is rendered;
+        nested data keeps its own scope. Loading, error, and loop empty
+        templates remain static.
+      </p>
+    </cf-include>
+    <noscript
+      ><p>
+        CFJS documentation requires JavaScript. Enable it to load the topics and
+        examples.
+      </p></noscript
     >
   </body>
 </html>

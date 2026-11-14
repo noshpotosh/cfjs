@@ -1,0 +1,26 @@
+<nav aria-label="Topics">
+  <cf-data source="docsNavigation" name="groups">
+    <template>
+      <cf-loop items="groups" as="group"
+        ><template>
+          <div class="nav-group">
+            <h2 cf-text="group.title"></h2>
+            <cf-loop items="group.topics" as="topic"
+              ><template>
+                <a
+                  cf-href="topic.href"
+                  cf-data-nav-topic="topic.slug"
+                  cf-text="topic.title"
+                ></a> </template
+            ></cf-loop>
+          </div> </template
+      ></cf-loop>
+    </template>
+    <template data-state="loading"><p>Loading navigation…</p></template>
+    <template data-state="error"
+      ><p role="alert">
+        Navigation could not load. Refresh to retry.
+      </p></template
+    >
+  </cf-data>
+</nav>

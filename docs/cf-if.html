@@ -3,25 +3,101 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Conditions · CFJS</title>
-    <link rel="stylesheet" href="./styles/examples.css" />
+    <meta name="description" content="CFJS documentation: cf-if" />
+    <title>cf-if · CFJS</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./styles/docs.css" />
+    <script defer src="./scripts/data.js"></script>
     <script defer src="./vendor/cfjs.js"></script>
+    <script type="module" src="./scripts/docs.js"></script>
   </head>
-  <body>
-    <cf-include src="./components/shell.html"
-      ><h1>Conditions</h1>
+  <body data-topic="cf-if">
+    <cf-include src="./components/shell.html">
+      <div class="page-heading">
+        <p class="breadcrumb">
+          <a href="./index.html">Docs</a>
+          <span aria-hidden="true">/</span> Reference
+        </p>
+        <h1 id="cf-if">cf-if</h1>
+      </div>
       <p>
-        Inside data rendering, <code>cf-if test="item.visible"</code> selects
-        its direct template by JavaScript truthiness, or an optional
-        <code>template data-state="else"</code>. The test is a property path,
-        not an expression. Only selected branches render; standalone conditions
-        and static empty-state content are not evaluated. Browsers may preload
-        literal URLs in unselected templates; use cf-src to defer image
-        assignment.
+        Choose a template once using a safe property path in the current data
+        context.
       </p>
-      <p>
-        <a href="./examples/conditional.html">Run conditions</a>
-      </p></cf-include
+      <section class="reference-row" aria-labelledby="test">
+        <div class="explanation">
+          <h2 id="test">Test and truthiness</h2>
+          <p>
+            <code>test</code> is a required, nonempty
+            <a href="./bindings.html#property-paths">property path</a>, such as
+            <code>repo.liveURL</code>. JavaScript truthiness selects the branch:
+            missing values, undefined, null, false, zero, NaN, and empty strings
+            select else. Arrays and objects, even empty ones, are truthy.
+          </p>
+          <p>
+            No expressions, function calls, indexes, or negation syntax are
+            supported. Invalid paths and missing required configuration fail the
+            owning <a href="./cf-data.html">cf-data</a> render, using its error
+            template or default alert and error event.
+          </p>
+        </div>
+        <div class="examples">
+          <p>
+            <a href="./examples/conditional.html"
+              >Open Conditional project links</a
+            >
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="templates">
+        <div class="explanation">
+          <h2 id="templates">Templates and scope</h2>
+          <p>
+            The first direct <code>template</code> without a
+            <code>data-state</code> attribute is required, even for a false
+            test. The optional first direct
+            <code>template data-state="else"</code> is used when false. Other
+            templates are ignored.
+          </p>
+          <p>
+            Only the selected branch is cloned and rendered. Both branches
+            support bindings, includes, loops, and nested conditions with the
+            current context. Conditions work inside data templates, loop rows,
+            and fragments included in that context. Nested
+            <code>cf-data</code> starts an independent scope.
+          </p>
+          <p>
+            Unselected templates stay inert: CFJS does not fetch their includes
+            or data, execute scripts, apply styles, or evaluate bindings. A
+            browser may speculatively preload literal image or script URLs in
+            the original HTML, even inside nested templates. Use
+            <code>cf-src</code> for images whose URL should only be assigned in
+            the selected branch.
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="dom">
+        <div class="explanation">
+          <h2 id="dom">Resulting DOM and timing</h2>
+          <p>
+            The wrapper is replaced by the selected branch before mounting.
+            False without else inserts nothing. There are no conditional load
+            events or updates when data changes: rendering happens once.
+          </p>
+          <p>
+            There is no standalone conditional renderer. Data loading/error
+            templates and loop empty templates remain static; conditions inside
+            them are not evaluated. This feature is additive and requires no
+            migration.
+          </p>
+        </div>
+      </section>
+    </cf-include>
+    <noscript
+      ><p>
+        CFJS documentation requires JavaScript. Enable it to load the topics and
+        examples.
+      </p></noscript
     >
   </body>
 </html>

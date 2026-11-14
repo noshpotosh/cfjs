@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>CFJS performance example</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="../styles/examples.css" />
+    <script defer src="../vendor/cfjs.js"></script>
+    <style>
+      .results {
+        min-height: 10rem;
+      }
+      img {
+        max-width: 100%;
+        height: auto;
+      }
+    </style>
+    <script>
+      window.performanceRows = [
+        { title: "First result" },
+        { title: "Second result" },
+      ];
+    </script>
+  </head>
+  <body>
+    <h1>Content available immediately</h1>
+    <p>The heading is ordinary HTML.</p>
+    <section class="results" aria-label="Results">
+      <cf-include src="./performance-panel.html"
+        ><p>Loading results…</p></cf-include
+      >
+    </section>
+  </body>
+</html>

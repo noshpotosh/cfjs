@@ -3,23 +3,132 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Loops · CFJS</title>
-    <link rel="stylesheet" href="./styles/examples.css" />
+    <meta name="description" content="CFJS documentation: cf-loop" />
+    <title>cf-loop · CFJS</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./styles/docs.css" />
+    <script defer src="./scripts/data.js"></script>
     <script defer src="./vendor/cfjs.js"></script>
+    <script type="module" src="./scripts/docs.js"></script>
   </head>
-  <body>
-    <cf-include src="./components/shell.html"
-      ><h1>Loops</h1>
+  <body data-topic="cf-loop">
+    <cf-include src="./components/shell.html">
+      <div class="page-heading">
+        <p class="breadcrumb">
+          <a href="./index.html">Docs</a>
+          <span aria-hidden="true">/</span> Reference
+        </p>
+        <h1 id="cf-loop">cf-loop</h1>
+      </div>
       <p>
-        Inside a data template,
-        <code>cf-loop items="response.rows" as="row"</code> clones its direct
-        template for each array item. The alias augments the parent context;
-        nested loops and included fragments use that context. Non-arrays or
-        invalid aliases fail rendering. Empty arrays use an optional static
-        <code>template data-state="empty"</code>. Rows prepare sequentially and
-        mount together.
+        Repeat a direct child template for each array item inside a data
+        rendering context.
       </p>
-      <p><a href="./examples/nested.html">Run nested loops</a></p></cf-include
+      <pre><code class="language-html">&lt;cf-loop items=&quot;response.projects&quot; as=&quot;project&quot;&gt;
+        &lt;template&gt;&lt;p cf-text=&quot;project.title&quot;&gt;&lt;/p&gt;&lt;/template&gt;
+      &lt;/cf-loop&gt;</code></pre>
+      <section class="reference-row" aria-labelledby="attributes">
+        <div class="explanation">
+          <h2 id="attributes">Attributes</h2>
+          <dl class="attributes">
+            <div>
+              <dt>
+                <h3 id="items"><code>items</code></h3>
+                <span class="type">Property path · required</span>
+              </dt>
+              <dd>
+                Must resolve to an array in the current context. Missing, null,
+                and non-array values fail the owning data render. No default; no
+                expressions or indexes.
+              </dd>
+            </div>
+            <div>
+              <dt>
+                <h3 id="as"><code>as</code></h3>
+                <span class="type">Identifier · required</span>
+              </dt>
+              <dd>
+                The local item alias, using the same identifier grammar as
+                <a href="./cf-data.html#name">cf-data name</a>. Each row
+                inherits the parent context plus this alias; a duplicate alias
+                shadows the inherited one. No default and no built-in index
+                variable.
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="templates">
+        <div class="explanation">
+          <h2 id="templates">Child templates and scope</h2>
+          <p>
+            The first direct template without <code>data-state</code> is
+            required and cloned for every item. Nested loops and included markup
+            inherit the row context. A nested data element starts its own
+            context. An ordinary loop outside a data template has no independent
+            renderer.
+          </p>
+        </div>
+        <div class="examples">
+          <p>
+            <a href="./examples/nested.html"
+              >Open Nested loops and an included row</a
+            >
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="empty">
+        <div class="explanation">
+          <h2 id="empty">Empty and failure behavior</h2>
+          <p>
+            The first direct <code>template data-state="empty"</code> is cloned
+            for an empty array; without it, nothing is inserted. Empty markup is
+            static: bindings and loops are not evaluated. There is no loop
+            loading or error template. Invalid configuration and rendering
+            errors use the owning data element’s error behavior.
+          </p>
+        </div>
+        <div class="examples">
+          <p>
+            <a href="./examples/states.html"
+              >Open Loading, empty, and failure states</a
+            >
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="dom">
+        <div class="explanation">
+          <h2 id="dom">Resulting DOM and timing</h2>
+          <p>
+            The loop wrapper and its templates are replaced with consecutive row
+            nodes, in array order, during data rendering before mounting. There
+            are no per-row load events. Results do not update when the array
+            changes. Follow <a href="./repeat.html">Repeat templates</a> and
+            <a href="./cf-data.html">cf-data</a>.
+          </p>
+        </div>
+      </section>
+      <p>
+        Use <a href="./cf-if.html">cf-if</a> to choose a branch once in the
+        current data or loop context. Only the selected template is rendered;
+        nested data keeps its own scope. Loading, error, and loop empty
+        templates remain static.
+      </p>
+      <p>
+        Data-template siblings and loop rows prepare sequentially while
+        detached. Rows retain array order and each row keeps its own binding
+        context. The owning data element mounts only after all preparation
+        succeeds; scripts and styles retain document order. Nested data and
+        unselected templates stay inert until their normal lifecycle. A failed
+        render never mounts partial results; later siblings and rows are not
+        prepared.
+      </p>
+    </cf-include>
+    <noscript
+      ><p>
+        CFJS documentation requires JavaScript. Enable it to load the topics and
+        examples.
+      </p></noscript
     >
   </body>
 </html>

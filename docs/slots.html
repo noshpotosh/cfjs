@@ -3,23 +3,102 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="CFJS documentation: Slots" />
     <title>Slots · CFJS</title>
-    <link rel="stylesheet" href="./styles/examples.css" />
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./styles/docs.css" />
+    <script defer src="./scripts/data.js"></script>
     <script defer src="./vendor/cfjs.js"></script>
+    <script type="module" src="./scripts/docs.js"></script>
   </head>
-  <body>
-    <cf-include src="./components/shell.html"
-      ><h1>Slots</h1>
+  <body data-topic="slots">
+    <cf-include src="./components/shell.html">
+      <div class="page-heading">
+        <p class="breadcrumb">
+          <a href="./index.html">Docs</a>
+          <span aria-hidden="true">/</span> Reference
+        </p>
+        <h1 id="slots">Slots</h1>
+      </div>
       <p>
-        Fragments use <code>&lt;slot name="heading"&gt;</code> or an unnamed
-        slot. Supply direct children with a matching
-        <code>slot</code> attribute. The first matching slot receives those
-        children; otherwise its own fallback remains. Unassigned children are
-        discarded. Slots compose once in the light DOM.
+        Insert supplied direct children into an include fragment at named or
+        default slot positions.
       </p>
-      <p>
-        <a href="./examples/composition.html">Run the composition example</a>
-      </p></cf-include
+      <pre><code class="language-html">&lt;slot name=&quot;heading&quot;&gt;&lt;h2&gt;Default heading&lt;/h2&gt;&lt;/slot&gt;
+      &lt;slot&gt;&lt;p&gt;Default body&lt;/p&gt;&lt;/slot&gt;</code></pre>
+      <section class="reference-row" aria-labelledby="attributes">
+        <div class="explanation">
+          <h2 id="attributes">Attributes</h2>
+          <dl class="attributes">
+            <div>
+              <dt>
+                <h3 id="name"><code>name</code></h3>
+                <span class="type">String · optional on slot</span>
+              </dt>
+              <dd>
+                The slot name; omitted or empty means the default slot. Names
+                are matched exactly.
+              </dd>
+            </div>
+            <div>
+              <dt>
+                <h3 id="slot"><code>slot</code></h3>
+                <span class="type">String · optional on supplied child</span>
+              </dt>
+              <dd>
+                Selects a named slot for a direct child element. Omitted or
+                empty means default. Text nodes always target the default slot.
+                There is no separate required value.
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="assignment">
+        <div class="explanation">
+          <h2 id="assignment">Assignment and fallback</h2>
+          <p>
+            Each supplied element or text node goes to the first matching slot.
+            Assigned nodes replace the slot; otherwise the slot’s own children
+            replace it. Unmatched children and comments are discarded.
+            Whitespace text counts as assignment and can suppress default
+            fallback. Slots belonging to a nested include are left for that
+            include.
+          </p>
+          <p>
+            There is no Shadow DOM distribution, slotchange event, or live
+            reassignment. Slot wrappers disappear; assigned elements retain
+            their <code>slot</code> attribute. In a data-rendered include,
+            assigned content inherits the data scope.
+          </p>
+        </div>
+        <div class="examples">
+          <p>
+            <a href="./examples/composition.html"
+              >Open Include with named and default slots</a
+            >
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="timing">
+        <div class="explanation">
+          <h2 id="timing">DOM, timing, and failure</h2>
+          <p>
+            Assignment happens during include preparation, before the tree
+            mounts. A failed tree retains the original include children. Outside
+            CFJS includes, CFJS does not process slot elements. Follow
+            <a href="./compose.html">Compose reusable fragments</a>; see
+            <a href="./cf-include.html">cf-include</a> for request and failure
+            behavior.
+          </p>
+        </div>
+      </section>
+    </cf-include>
+    <noscript
+      ><p>
+        CFJS documentation requires JavaScript. Enable it to load the topics and
+        examples.
+      </p></noscript
     >
   </body>
 </html>

@@ -3,25 +3,125 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="CFJS documentation: Events and lifecycle"
+    />
     <title>Events and lifecycle · CFJS</title>
-    <link rel="stylesheet" href="./styles/examples.css" />
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./styles/docs.css" />
+    <script defer src="./scripts/data.js"></script>
     <script defer src="./vendor/cfjs.js"></script>
+    <script type="module" src="./scripts/docs.js"></script>
   </head>
-  <body>
-    <cf-include src="./components/shell.html"
-      ><h1>Events and lifecycle</h1>
+  <body data-topic="events">
+    <cf-include src="./components/shell.html">
+      <div class="page-heading">
+        <p class="breadcrumb">
+          <a href="./index.html">Docs</a>
+          <span aria-hidden="true">/</span> Reference
+        </p>
+        <h1 id="events">Events and lifecycle</h1>
+      </div>
       <p>
-        Successful includes emit bubbling <code>cf:load</code> on their former
-        parent with <code>detail.src</code>. Failures set
-        <code>data-cf-error</code> and emit <code>cf:error</code> on the include
-        with <code>detail.error</code>. There is no page-wide completion event
-        or cancellation API.
+        Listen with native DOM event APIs before loading the runtime if you need
+        to observe every event. There is no page-wide completion barrier.
       </p>
-      <p>
-        Data elements emit cf:load on themselves without detail, or cf:error
-        with detail.error. aria-busy is removed on completion; failed data
-        renders its error template or a default alert.
-      </p></cf-include
+      <section class="reference-row" aria-labelledby="cf-load">
+        <div class="explanation">
+          <h2 id="cf-load">cf:load</h2>
+          <p>
+            Bubbles. For a successful include, the event target is the former
+            include parent because the wrapper has been removed.
+            <code>detail</code> is <code>{ src }</code>, using the outer
+            element’s original source string. Nested fragments prepared within
+            that tree do not emit separate include events. Nested data still
+            completes independently.
+          </p>
+          <p>
+            For successful data rendering, the target is the retained
+            <code>cf-data</code> element; there is no detail payload (<code
+              >event.detail === null</code
+            >). Both events fire after mounting and synchronous script
+            activation, while external scripts, modules, images, and
+            asynchronous work may remain pending.
+          </p>
+        </div>
+        <div class="examples">
+          <p><a href="./examples/events.html">Open An include load event</a></p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="assembled-ready">
+        <div class="explanation">
+          <h2 id="assembled-ready">Document readiness</h2>
+          <p>
+            Initialize ordinary page controls at DOM readiness with a deferred
+            script or <code>DOMContentLoaded</code>. This does not wait for CFJS
+            requests. Includes and data emit their own events; there is no
+            synthetic page-wide readiness event.
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="cf-error">
+        <div class="explanation">
+          <h2 id="cf-error">cf:error</h2>
+          <p>
+            Bubbles from the failed include or data element with
+            <code>detail: { error }</code>, where error is the failure object.
+            Includes retain fallback content and log the error. Data elements
+            replace children with the error template or default alert. A
+            rendering failure in a loop or data-bound include belongs to its
+            owning data element. Native script failures use normal browser error
+            reporting.
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="aria-busy">
+        <div class="explanation">
+          <h2 id="aria-busy">aria-busy</h2>
+          <p>
+            A data element sets <code>aria-busy="true"</code> at the start of
+            loading and removes the attribute in its finally step, after its
+            load or error event. Includes do not set it.
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="data-cf-error">
+        <div class="explanation">
+          <h2 id="data-cf-error">data-cf-error</h2>
+          <p>
+            The failed include or data wrapper receives the error message as an
+            attribute for diagnostics. The failure event carries the actual
+            error. Check both the Network panel and this attribute when
+            diagnosing a failure.
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="lifetime">
+        <div class="explanation">
+          <h2 id="lifetime">Lifetime and retry</h2>
+          <p>
+            Each element starts once. Changing attributes, removing and
+            reconnecting it, or updating a global value does not restart it.
+            Construct a new element using the original templates to retry.
+            Removal does not cancel a request; disconnected data elements ignore
+            late output, and disconnected includes ignore late successful
+            mounting. There is no cleanup hook for timers, global listeners, or
+            global styles.
+          </p>
+          <p>
+            See <a href="./cf-data.html">cf-data</a> and
+            <a href="./cf-include.html">cf-include</a> for source-specific
+            failures.
+          </p>
+        </div>
+      </section>
+    </cf-include>
+    <noscript
+      ><p>
+        CFJS documentation requires JavaScript. Enable it to load the topics and
+        examples.
+      </p></noscript
     >
   </body>
 </html>

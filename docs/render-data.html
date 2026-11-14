@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="CFJS documentation: Render JSON and global data"
+    />
+    <title>Render JSON and global data · CFJS</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./styles/docs.css" />
+    <script defer src="./scripts/data.js"></script>
+    <script defer src="./vendor/cfjs.js"></script>
+    <script type="module" src="./scripts/docs.js"></script>
+  </head>
+  <body data-topic="render-data">
+    <cf-include src="./components/shell.html">
+      <div class="page-heading">
+        <p class="breadcrumb">
+          <a href="./index.html">Docs</a>
+          <span aria-hidden="true">/</span> Guides
+        </p>
+        <h1 id="render-data">Render JSON and global data</h1>
+      </div>
+      <section class="reference-row" aria-labelledby="json">
+        <div class="explanation">
+          <h2 id="json">Load a JSON document</h2>
+          <p>
+            Use <code>src</code> with a JSON URL, give the response an alias
+            with <code>name</code>, and bind paths inside a direct child
+            template. Check the network response is successful JSON if rendering
+            fails.
+          </p>
+        </div>
+        <div class="examples">
+          <p><a href="./examples/json.html">Open JSON response</a></p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="global">
+        <div class="explanation">
+          <h2 id="global">Use a global value or function</h2>
+          <p>
+            Assign an object, promise, or function to <code>window</code> before
+            loading the runtime. Use <code>source</code> instead of
+            <code>src</code>. Function results are awaited; functions receive no
+            arguments or receiver. A nested data element resolves its source
+            only on window, never from an enclosing alias. Its result template
+            still has its own scope. A slow nested source does not delay its
+            parent or siblings.
+          </p>
+          <p>
+            Module bindings and top-level <code>let</code> or
+            <code>const</code> must be explicitly exposed on
+            <code>window</code>. External scripts and modules are not a
+            source-readiness barrier. See
+            <a href="./cf-data.html#source">source</a>.
+          </p>
+        </div>
+        <div class="examples">
+          <p><a href="./examples/global.html">Open Global source</a></p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="states">
+        <div class="explanation">
+          <h2 id="states">Explain waiting and failure</h2>
+          <p>
+            Add static loading and error templates. The result below starts with
+            a loading message and finishes with an empty-loop message. A second
+            element demonstrates a rejected source. Reload the standalone
+            example to see the loading state again.
+          </p>
+          <p>
+            For a retry, create a new data element from your original markup.
+            Reconnecting the old one or changing its attributes will not
+            rerender. See <a href="./cf-data.html">cf-data</a> for caching and
+            failure rules.
+          </p>
+        </div>
+        <div class="examples">
+          <p>
+            <a href="./examples/states.html"
+              >Open Loading, empty, and failure states</a
+            >
+          </p>
+        </div>
+      </section>
+      <p>
+        Use <a href="./cf-if.html">cf-if</a> to choose a branch once in the
+        current data or loop context. Only the selected template is rendered;
+        nested data resolves its source on window and gives its result a
+        separate scope. Loading, error, and loop empty templates remain static.
+      </p>
+      <p>
+        Data-template siblings and loop rows prepare sequentially while
+        detached. Rows retain array order and each row keeps its own binding
+        context. The owning data element mounts only after all preparation
+        succeeds; scripts and styles retain document order. Nested data and
+        unselected templates stay inert until their normal lifecycle. A failed
+        render never mounts partial results; later siblings and rows are not
+        prepared.
+      </p>
+    </cf-include>
+    <noscript
+      ><p>
+        CFJS documentation requires JavaScript. Enable it to load the topics and
+        examples.
+      </p></noscript
+    >
+  </body>
+</html>
