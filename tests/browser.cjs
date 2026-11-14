@@ -282,6 +282,7 @@ const server = http.createServer(async (req, res) => {
     assert.deepEqual(errors, []);
     console.log('PASS: removed includes, classic/module runtime tags, parser-inserted includes, duplicate runtime loading, CSP nonces, dynamic instances, no unexpected browser errors');
     await require('./preparation.cjs')(browser, origin + '/');
+    await require('./data-basics.cjs')(browser, origin + '/');
     await require('./foundation-docs.cjs')(browser, origin);
     console.log('Browser:', await browser.version());
 

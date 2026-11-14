@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CFJS live example</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="../styles/examples.css" />
+    <script defer src="../vendor/cfjs.js"></script>
+  </head>
+  <body>
+    <cf-data src="../data/examples/projects.json" name="response">
+      <template><h2 cf-text="response.title"></h2></template>
+      <template data-state="loading"
+        ><p role="status">Loading projects…</p></template
+      >
+      <template data-state="error"
+        ><p role="alert">Projects could not load.</p></template
+      >
+    </cf-data>
+  </body>
+</html>

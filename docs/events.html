@@ -16,6 +16,11 @@
         <code>data-cf-error</code> and emit <code>cf:error</code> on the include
         with <code>detail.error</code>. There is no page-wide completion event
         or cancellation API.
+      </p>
+      <p>
+        Data elements emit cf:load on themselves without detail, or cf:error
+        with detail.error. aria-busy is removed on completion; failed data
+        renders its error template or a default alert.
       </p></cf-include
     >
   </body>

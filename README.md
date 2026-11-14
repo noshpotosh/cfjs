@@ -7,6 +7,8 @@ Compose trusted HTML fragments in the browser with one script and no build step.
 - [Paths and requests](docs/paths.html)
 - [Events and lifecycle](docs/events.html)
 - [Scripts and styles](docs/scripts.html)
+- [Data](docs/cf-data.html)
+- [Bindings](docs/bindings.html)
 
 ## Development
 

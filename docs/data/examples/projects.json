@@ -1,0 +1,24 @@
+{
+  "title": "Selected projects",
+  "projects": [
+    {
+      "title": "Field notes",
+      "tags": [
+        {
+          "label": "HTML"
+        },
+        {
+          "label": "CSS"
+        }
+      ]
+    },
+    {
+      "title": "Tiny tools",
+      "tags": [
+        {
+          "label": "JavaScript"
+        }
+      ]
+    }
+  ]
+}

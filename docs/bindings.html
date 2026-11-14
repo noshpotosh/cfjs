@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bindings · CFJS</title>
+    <link rel="stylesheet" href="./styles/examples.css" />
+    <script defer src="./vendor/cfjs.js"></script>
+  </head>
+  <body>
+    <cf-include src="./components/shell.html"
+      ><h1>Bindings</h1>
+      <p>
+        Inside a data template, bind own-property paths through
+        <code>cf-text</code>, <code>cf-href</code>, <code>cf-src</code>,
+        <code>cf-alt</code>, <code>cf-id</code>, <code>cf-title</code>,
+        <code>cf-aria-*</code> and <code>cf-data-*</code>. Text is escaped
+        through textContent. Missing values become empty strings. Unsafe path
+        segments and unsupported bindings fail rendering. Links permit HTTP(S),
+        mailto and tel; image sources require HTTP(S). This is not an expression
+        evaluator or sanitizer.
+      </p></cf-include
+    >
+  </body>
+</html>
