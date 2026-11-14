@@ -218,6 +218,17 @@ main {
 main>p,main>pre {
   max-width:720px
 }
+.heading-link {
+  font-size:.75em;
+  padding:4px 6px;
+  margin-left:5px;
+  color:#8b83ce;
+  opacity:0;
+  letter-spacing:0
+}
+h1:hover .heading-link,h2:hover .heading-link,h3:hover .heading-link,.heading-link:focus {
+  opacity:1
+}
 .attributes {
   margin:0
 }
@@ -259,6 +270,48 @@ main>p,main>pre {
   box-shadow:0 2px 4px #1c294006;
   margin:0
 }
+.example-source {
+  background:var(--code);
+  color:#dce4f5;
+  min-width:0
+}
+[role="tablist"] {
+  display:flex;
+  overflow:auto;
+  border-bottom:1px solid #343c50;
+  background:#1e263a;
+  padding:0 8px
+}
+[role="tab"] {
+  background:transparent;
+  border:0;
+  border-bottom:2px solid transparent;
+  padding:12px 10px;
+  color:#a6b2c9;
+  font:11px/1.5 ui-monospace,monospace;
+  white-space:nowrap
+}
+[role="tab"][aria-selected="true"] {
+  color:#fff;
+  border-color:#a496ff
+}
+.code-toolbar {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:10px 16px 0;
+  color:#a6b2c9;
+  font-size:10px;
+  text-transform:uppercase
+}
+.copy-button {
+  border:1px solid #46516a;
+  border-radius:4px;
+  padding:3px 9px;
+  background:transparent;
+  color:#d6dff2;
+  font-size:10px
+}
 pre {
   background:var(--code);
   color:#dce4f5;
@@ -272,8 +325,54 @@ pre {
   tab-size:2;
   white-space:pre
 }
+.example-source pre {
+  padding:12px 16px 20px;
+  margin:0;
+  border-radius:0;
+  max-height:370px;
+  font-size:11px
+}
 pre code {
   font-size:inherit
+}
+.token-comment {
+  color:#8f9eb6
+}
+.token-keyword {
+  color:#b7a4ff
+}
+.token-string {
+  color:#9ce2c7
+}
+.token-attribute {
+  color:#8cccf5
+}
+.live-heading {
+  background:#f8f9fc;
+  padding:10px 16px;
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.04em
+}
+.live-heading a {
+  font-size:10px;
+  text-transform:none;
+  letter-spacing:0
+}
+iframe {
+  display:block;
+  width:100%;
+  height:220px;
+  border:0;
+  background:white
+}
+[data-example="nested"] iframe {
+  height:310px
 }
 [hidden] {
   display:none!important
@@ -396,6 +495,9 @@ th {
   .download {
     display:none
   }
+  .example-source pre {
+    max-height:320px
+  }
 }
 @media(max-width:767px) {
   :root {
@@ -440,6 +542,12 @@ th {
   }
   .page-heading {
     margin-bottom:26px
+  }
+  .example-source pre {
+    max-height:310px
+  }
+  .heading-link {
+    opacity:1
   }
   footer {
     flex-wrap:wrap;

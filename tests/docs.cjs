@@ -5,7 +5,7 @@ module.exports = async (browser, origin) => {
   const base = origin + '/docs/';
   const topics = JSON.parse(await fs.readFile(path.join(__dirname, '../docs/data/topics.json')));
   const legacy = {};
-  const manifest = {"hello": {"title": "One-time data rendering", "files": ["hello.html"]}, "composition": {"title": "Include with named and default slots", "files": ["composition.html", "card.html"]}, "json": {"title": "JSON response", "files": ["json.html", "../data/examples/projects.json"]}, "global": {"title": "Global source", "files": ["global.html", "../scripts/examples/global.js"]}, "nested": {"title": "Nested loops and an included row", "files": ["nested.html", "project.html", "../data/examples/projects.json"]}, "states": {"title": "Loading, empty, and failure states", "files": ["states.html"]}, "bindings": {"title": "Text and attribute bindings", "files": ["bindings.html"]}, "scripts": {"title": "Inline script activation", "files": ["scripts.html", "status.html", "../scripts/examples/status.js"]}, "events": {"title": "An include load event", "files": ["events.html", "card.html"]}, "conditional": {"title": "Conditional project links", "files": ["conditional.html"]}, "parallel": {"title": "Sequential panels with ordered scripts", "files": ["parallel.html", "parallel-tree.html", "parallel-first.html", "parallel-second.html"]}, "performance": {"title": "Static critical content and reserved loading space", "files": ["performance.html", "performance-panel.html", "performance-row.html"]}, "progressive": {"title": "Parents and nested fragments mount together", "files": ["progressive.html", "progressive-parent.html", "progressive-child.html"]}, "independent": {"title": "Optional global details load independently", "files": ["independent.html", "../scripts/examples/independent.js"]}};
+  const manifest = JSON.parse(await fs.readFile(path.join(__dirname, '../docs/data/examples.json')));
   assert.deepEqual(await fs.readFile(path.join(__dirname, '../docs/vendor/cfjs.js')), await fs.readFile(path.join(__dirname, '../cfjs.js')));
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   const errors = [], failedIncludes = [], failedRequests = [], redirectExampleRequests = [];
@@ -80,6 +80,38 @@ module.exports = async (browser, origin) => {
   await page.goForward();
   await settled();
   assert.equal(new URL(page.url()).pathname, '/docs/cf-loop.html');
+  // File tab semantics, exact source, copy success and failure feedback.
+  await ready('compose');
+  const example = page.locator('[data-example="composition"]');
+  const tabs = example.getByRole('tab');
+  await tabs.first().focus();
+  await page.keyboard.press('ArrowRight');
+  assert.equal(await tabs.nth(1).getAttribute('aria-selected'), 'true');
+  assert(await tabs.nth(1).evaluate(node => node === document.activeElement));
+  assert.equal(await example.locator('[role="tabpanel"]:visible').count(), 1);
+  await page.keyboard.press('Home');
+  assert.equal(await tabs.first().getAttribute('aria-selected'), 'true');
+  for (const [i, file] of manifest.composition.files.entries()) {
+    assert.equal(await example.locator('[role="tabpanel"] code').nth(i).textContent(), await fs.readFile(path.join(__dirname, '../docs/examples', file), 'utf8'));
+  }
+  await page.evaluate(() => Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async value => { window.copied = value; } } }));
+  await example.locator('[role="tabpanel"]:visible .copy-button').click();
+  assert.equal(await page.locator('#copy-status').textContent(), 'Example source copied.');
+  assert.equal(await page.evaluate(() => window.copied), await fs.readFile(path.join(__dirname, '../docs/examples/composition.html'), 'utf8'));
+  await page.evaluate(() => Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async () => { throw new Error('Denied'); } } }));
+  await example.locator('[role="tabpanel"]:visible .copy-button').click();
+  await page.getByRole('status').filter({ hasText: 'Copy failed.' }).waitFor();
+  // Every displayed source panel matches its executed file, across all topics.
+  for (const topic of topics) {
+    const source = await fs.readFile(path.join(__dirname, '../docs', topic.slug + '.html'), 'utf8');
+    assert(source.includes('<cf-include'), 'Docs retain browser includes');
+    await ready(topic.slug);
+    for (const block of await page.locator('[data-example]').all()) {
+      assert(await block.locator('[role="tabpanel"]').count() > 0, 'Example panels render in the browser');
+      const entry = manifest[await block.getAttribute('data-example')];
+      for (const [index, file] of entry.files.entries()) assert.equal(await block.locator('code').nth(index).textContent(), await fs.readFile(path.join(__dirname, '../docs/examples', file), 'utf8'));
+    }
+  }
   // Standalone examples are the same files used by read-only live iframes.
   for (const [key, entry] of Object.entries(manifest)) {
     await page.goto(base + 'examples/' + entry.files[0]);
@@ -102,6 +134,34 @@ module.exports = async (browser, origin) => {
       if (key === 'bindings') { await page.waitForFunction(() => document.querySelector('img').naturalWidth > 0);  assert.equal(await page.locator('img').nth(0).getAttribute('src'), '../assets/project-mark.svg'); assert.equal(await page.locator('img').nth(0).getAttribute('alt'), 'CFJS project mark'); for (const index of [1, 2]) { assert.equal(await page.locator('img').nth(index).getAttribute('src'), null); assert.equal(await page.locator('img').nth(index).getAttribute('alt'), ''); }  assert.equal(await page.locator('a').getAttribute('data-kind'), 'demo'); assert.equal(await page.locator('p').textContent(), ''); }
       if (key === 'scripts') assert.match(await page.locator('.status').textContent(), /ran after mounting/);
       if (key === 'events') assert.match(await page.locator('output').textContent(), /target: body/);
+    }
+  }
+  const sourcePage = await browser.newPage();
+  // A broken example keeps the topic readable and offers its standalone link.
+  await sourcePage.route('**/examples/card.html', route => route.fulfill({ status: 503, body: 'Unavailable' }));
+  await sourcePage.goto(base + 'compose.html');
+  await sourcePage.locator('[data-example="composition"]').getByText(/Example could not load/).waitFor();
+  assert.equal(await sourcePage.locator('h1').textContent(), 'Compose reusable fragments#');
+  assert.equal(await sourcePage.locator('[data-example="composition"] a').getAttribute('href'), './examples/composition.html');
+  await sourcePage.close();
+  // Representative screenshots are local QA artifacts, not deployment output.
+  const screenshots = process.env.DOCS_SCREENSHOTS;
+  if (screenshots) {
+    await fs.mkdir(screenshots, { recursive: true });
+    for (const slug of ['cf-data', 'compose']) for (const width of [1440, 900, 390]) {
+      await page.setViewportSize({ width, height: 1000 });
+      await ready(slug);
+      // Load offscreen previews before reviewing full-page screenshots.
+      for (const iframe of await page.locator('iframe').all()) {
+        await iframe.scrollIntoViewIfNeeded();
+        const frame = await (await iframe.elementHandle()).contentFrame();
+        await frame.waitForURL(/\/examples\//);
+        await frame.waitForLoadState('load');
+        await frame.waitForFunction(() => !document.querySelector('cf-include, cf-data[aria-busy]'));
+        assert.equal(await frame.locator('body').textContent().then(text => text.trim().length > 0), true);
+      }
+      await page.evaluate(() => scrollTo(0, 0));
+      await page.screenshot({ path: path.join(screenshots, `${slug}-${width}.png`), fullPage: true });
     }
   }
   assert.deepEqual(errors, []);

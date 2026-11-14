@@ -68,6 +68,17 @@
             <code>scripts/examples/</code>, images in <code>assets/</code>, and
             shared example CSS in <code>styles/examples.css</code>.
           </p>
+          <p>
+            Register runnable files in <code>data/examples.json</code> and
+            reference their key with <code>data-example</code>. Manifest paths
+            are relative to <code>examples/</code>, including supporting files
+            such as <code>../data/examples/projects.json</code> and
+            <code>../scripts/examples/global.js</code>. The first listed file is
+            the HTML entrypoint in <code>examples/</code>. Browser JavaScript
+            fetches these same files for source panels, so there is one source
+            of truth. Use relative URLs in example HTML; the runtime and
+            <code>styles/examples.css</code> are fixed preview dependencies.
+          </p>
         </div>
       </section>
       <section class="reference-row" aria-labelledby="verification">
@@ -84,8 +95,8 @@
             pinned Prettier version formats HTML using its configured defaults.
             Run <code>npm test</code>. It verifies the docs runtime copy and
             serves source files directly for browser checks covering runtime
-            behavior, topic links, live examples, and desktop, tablet, and
-            mobile layouts. Visually inspect affected pages too.
+            behavior, topic links, copy and tabs, live examples, and desktop,
+            tablet, and mobile layouts. Visually inspect affected pages too.
           </p>
           <p>
             Set <code>CHROMIUM_PATH</code> for installed Chrome, or
