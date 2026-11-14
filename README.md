@@ -84,7 +84,7 @@ Start with the [Quickstart](docs/quickstart.html), then explore
 [repeating templates](docs/repeat.html).
 
 The documentation is a separate static site composed by CFJS in the browser.
-Runnable examples are available as standalone HTML files.
+Its examples share their runnable source with the displayed code with standalone live previews.
 
 ```sh
 npm run docs:dev   # http://127.0.0.1:8765/; no npm install needed

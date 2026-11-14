@@ -1,0 +1,102 @@
+{
+  "hello": {
+    "title": "One-time data rendering",
+    "files": [
+      "hello.html"
+    ]
+  },
+  "composition": {
+    "title": "Include with named and default slots",
+    "files": [
+      "composition.html",
+      "card.html"
+    ]
+  },
+  "json": {
+    "title": "JSON response",
+    "files": [
+      "json.html",
+      "../data/examples/projects.json"
+    ]
+  },
+  "global": {
+    "title": "Global source",
+    "files": [
+      "global.html",
+      "../scripts/examples/global.js"
+    ]
+  },
+  "nested": {
+    "title": "Nested loops and an included row",
+    "files": [
+      "nested.html",
+      "project.html",
+      "../data/examples/projects.json"
+    ]
+  },
+  "states": {
+    "title": "Loading, empty, and failure states",
+    "files": [
+      "states.html"
+    ]
+  },
+  "bindings": {
+    "title": "Text and attribute bindings",
+    "files": [
+      "bindings.html"
+    ]
+  },
+  "scripts": {
+    "title": "Inline script activation",
+    "files": [
+      "scripts.html",
+      "status.html",
+      "../scripts/examples/status.js"
+    ]
+  },
+  "events": {
+    "title": "An include load event",
+    "files": [
+      "events.html",
+      "card.html"
+    ]
+  },
+  "conditional": {
+    "title": "Conditional project links",
+    "files": [
+      "conditional.html"
+    ]
+  },
+  "parallel": {
+    "title": "Sequential panels with ordered scripts",
+    "files": [
+      "parallel.html",
+      "parallel-tree.html",
+      "parallel-first.html",
+      "parallel-second.html"
+    ]
+  },
+  "performance": {
+    "title": "Static critical content and reserved loading space",
+    "files": [
+      "performance.html",
+      "performance-panel.html",
+      "performance-row.html"
+    ]
+  },
+  "progressive": {
+    "title": "Parents and nested fragments mount together",
+    "files": [
+      "progressive.html",
+      "progressive-parent.html",
+      "progressive-child.html"
+    ]
+  },
+  "independent": {
+    "title": "Optional global details load independently",
+    "files": [
+      "independent.html",
+      "../scripts/examples/independent.js"
+    ]
+  }
+}
