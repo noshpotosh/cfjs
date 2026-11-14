@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="CFJS documentation: Troubleshooting and limitations"
+    />
+    <title>Troubleshooting and limitations · CFJS</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./styles/docs.css" />
+    <script defer src="./scripts/data.js"></script>
+    <script defer src="./vendor/cfjs.js"></script>
+    <script type="module" src="./scripts/docs.js"></script>
+  </head>
+  <body data-topic="troubleshooting">
+    <cf-include src="./components/shell.html">
+      <div class="page-heading">
+        <p class="breadcrumb">
+          <a href="./index.html">Docs</a>
+          <span aria-hidden="true">/</span> Resources
+        </p>
+        <h1 id="troubleshooting">Troubleshooting and limitations</h1>
+      </div>
+      <section class="reference-row" aria-labelledby="symptoms">
+        <div class="explanation">
+          <h2 id="symptoms">Symptoms, causes, and remedies</h2>
+          <dl class="troubleshooting">
+            <dt>Fallback never disappears</dt>
+            <dd>
+              Inspect data-cf-error, the console, and Network panel. Serve over
+              HTTP(S); check the response status, CORS, CSP, and
+              document-relative src path. HTML includes have no timeout.
+            </dd>
+            <dt>Unknown data source</dt>
+            <dd>
+              Define the own property on window before the element starts.
+              Expose module and const/let bindings explicitly. Do not depend on
+              an external script or module finishing first.
+            </dd>
+            <dt>Content remains blank</dt>
+            <dd>
+              Check the alias and each own-property path. Missing values become
+              blank text. An empty loop without an empty template emits nothing.
+            </dd>
+            <dt>Loop fails instead of showing empty</dt>
+            <dd>
+              items must resolve to an array. Supply [] for an empty result;
+              null or a missing property is an error.
+            </dd>
+            <dt>Template renders literal binding attributes</dt>
+            <dd>
+              Put bindings and loops inside a cf-data result template. Loading,
+              error, and empty templates are static. Nested cf-data elements
+              cannot read an outer alias.
+            </dd>
+            <dt>Link disappears</dt>
+            <dd>
+              cf-href removes empty and disallowed protocol values. Use an
+              HTTP(S), mailto, tel, relative, or fragment URL.
+            </dd>
+            <dt>Changing src has no effect</dt>
+            <dd>
+              Rendering is one-time. Create a new element from the original
+              template to retry. Successful responses remain cached for the
+              document lifetime.
+            </dd>
+            <dt>Fragment styles or scripts affect other instances</dt>
+            <dd>
+              The DOM and styles are global. Wrap initialization in a function
+              and clean up your own timers and global listeners.
+            </dd>
+            <dt>Nested include or asset returns 404</dt>
+            <dd>
+              Resolve the path against the entry document, not the fragment’s
+              directory. Test direct page URLs under the intended deployment
+              subdirectory.
+            </dd>
+            <dt>Default slot fallback disappears</dt>
+            <dd>
+              Whitespace text nodes are valid default-slot assignments. Remove
+              unintended supplied whitespace or supply explicit body content.
+            </dd>
+          </dl>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="limitations">
+        <div class="explanation">
+          <h2 id="limitations">Supported boundaries</h2>
+          <p>
+            Trusted HTML and code only; includes are not a sanitizer. There is
+            no reactivity, interpolation, arbitrary expression evaluation, event
+            binding directive, source registration API, reload API, cancellation
+            API, or automatic lifecycle cleanup. Browser HTML parser placement
+            rules still apply, especially inside tables and selects; author
+            ordinary fragments rather than complete documents or
+            destination-dependent bare table rows.
+          </p>
+          <p>
+            Modern browser APIs including custom elements, templates, fetch,
+            Object.hasOwn, and AbortSignal.timeout are required. The browser
+            suite verifies the selected engine; it is not a promise of support
+            for all historical versions. See
+            <a href="./paths.html">request constraints</a> and
+            <a href="./scripts.html">script readiness</a>.
+          </p>
+        </div>
+      </section>
+      <p>
+        Use <a href="./cf-if.html">cf-if</a> to choose a branch once in the
+        current data or loop context. Only the selected template is rendered;
+        nested data keeps its own scope. Loading, error, and loop empty
+        templates remain static.
+      </p>
+    </cf-include>
+    <noscript
+      ><p>
+        CFJS documentation requires JavaScript. Enable it to load the topics and
+        examples.
+      </p></noscript
+    >
+  </body>
+</html>

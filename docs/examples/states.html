@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CFJS live example</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="../styles/examples.css" />
+    <script>
+      window.loadEmpty = () =>
+        new Promise((resolve) => setTimeout(() => resolve([]), 1500));
+      window.loadFailure = () =>
+        Promise.reject(new Error("Example provider unavailable"));
+    </script>
+    <script defer src="../vendor/cfjs.js"></script>
+  </head>
+  <body>
+    <cf-data source="loadEmpty" name="response">
+      <template>
+        <cf-loop items="response" as="item">
+          <template><p cf-text="item.title"></p></template>
+          <template data-state="empty"><p>No projects yet.</p></template>
+        </cf-loop>
+      </template>
+      <template data-state="loading"
+        ><p role="status">Loading projects…</p></template
+      >
+      <template data-state="error"
+        ><p role="alert">Projects could not load.</p></template
+      >
+    </cf-data>
+    <cf-data source="loadFailure" name="response">
+      <template><p cf-text="response.title"></p></template>
+      <template data-state="error"
+        ><p role="alert">
+          The provider rejected. This is the error fallback.
+        </p></template
+      >
+    </cf-data>
+  </body>
+</html>

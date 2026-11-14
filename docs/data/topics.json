@@ -1,0 +1,92 @@
+[
+  {
+    "group": "Getting started",
+    "slug": "index",
+    "title": "Introduction"
+  },
+  {
+    "group": "Getting started",
+    "slug": "quickstart",
+    "title": "Quickstart"
+  },
+  {
+    "group": "Guides",
+    "slug": "compose",
+    "title": "Compose reusable fragments"
+  },
+  {
+    "group": "Guides",
+    "slug": "render-data",
+    "title": "Render JSON and global data"
+  },
+  {
+    "group": "Guides",
+    "slug": "repeat",
+    "title": "Repeat templates"
+  },
+  {
+    "group": "Guides",
+    "slug": "performance",
+    "title": "Performance"
+  },
+  {
+    "group": "Reference",
+    "slug": "cf-include",
+    "title": "cf-include"
+  },
+  {
+    "group": "Reference",
+    "slug": "slots",
+    "title": "Slots"
+  },
+  {
+    "group": "Reference",
+    "slug": "cf-data",
+    "title": "cf-data"
+  },
+  {
+    "group": "Reference",
+    "slug": "cf-loop",
+    "title": "cf-loop"
+  },
+  {
+    "group": "Reference",
+    "slug": "cf-if",
+    "title": "cf-if"
+  },
+  {
+    "group": "Reference",
+    "slug": "bindings",
+    "title": "Bindings"
+  },
+  {
+    "group": "Reference",
+    "slug": "paths",
+    "title": "Paths and requests"
+  },
+  {
+    "group": "Reference",
+    "slug": "scripts",
+    "title": "Scripts and styles"
+  },
+  {
+    "group": "Reference",
+    "slug": "events",
+    "title": "Events and lifecycle"
+  },
+  {
+    "group": "Resources",
+    "slug": "troubleshooting",
+    "title": "Troubleshooting and limitations"
+  },
+  {
+    "group": "Resources",
+    "slug": "migration",
+    "title": "Migration"
+  },
+  {
+    "group": "Resources",
+    "slug": "contributing",
+    "title": "Contributing"
+  }
+]

@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="CFJS documentation: Migration" />
+    <title>Migration · CFJS</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./styles/docs.css" />
+    <script defer src="./scripts/data.js"></script>
+    <script defer src="./vendor/cfjs.js"></script>
+    <script type="module" src="./scripts/docs.js"></script>
+  </head>
+  <body data-topic="migration">
+    <cf-include src="./components/shell.html">
+      <div class="page-heading">
+        <p class="breadcrumb">
+          <a href="./index.html">Docs</a>
+          <span aria-hidden="true">/</span> Resources
+        </p>
+        <h1 id="migration">Migration</h1>
+      </div>
+      <section class="reference-row" aria-labelledby="portfolio-runtime">
+        <div class="explanation">
+          <h2 id="portfolio-runtime">
+            Portfolio runtime alignment — November 14, 2026
+          </h2>
+          <p>
+            The canonical runtime now matches the portfolio byte for byte.
+            Progressive mounting, concurrent nested preparation, parsed-template
+            caching, row-local source lookup, static-data skipping and assembled
+            readiness events are removed. The compiler, static/assembly builds
+            and server renderer have also been removed. Serve original HTML,
+            fragments, JSON and the runtime directly. Remove compiled markers
+            and restore the original data templates; generated output is not a
+            replacement for source. Initialize ordinary page controls at DOM
+            readiness and dynamic content on its own load event. Use global
+            nested providers. That development snapshot used package version
+            1.0.0; release preparation now uses 0.1.0. The runtime embeds no
+            release number.
+          </p>
+        </div>
+      </section>
+
+      <section class="reference-row" aria-labelledby="progressive-mode">
+        <div class="explanation">
+          <h2 id="progressive-mode">Progressive includes removed</h2>
+          <p>
+            The portfolio runtime ignores <code>progressive</code>. Includes
+            mount only after their entire tree is prepared; a nested failure
+            preserves the outer fallback. Move critical content to initial HTML
+            or independent outer includes.
+          </p>
+        </div>
+      </section>
+
+      <section class="reference-row" aria-labelledby="includes-v1">
+        <div class="explanation">
+          <h2 id="includes-v1">From the includes-only snapshot</h2>
+          <p>
+            This development snapshot changes path semantics and adds data,
+            loops, slots, and style handling. It is not a promise of
+            compatibility with the original includes-only snapshot.
+          </p>
+          <ol>
+            <li>
+              Rewrite nested include and asset paths relative to the entry
+              document. CFJS no longer rebases asset attributes against the
+              fragment response URL.
+            </li>
+            <li>
+              Check component style precedence: style blocks move to the head
+              before the first stylesheet and identical blocks are deduplicated.
+            </li>
+            <li>
+              Use slots for supplied include children. Unmatched children are
+              discarded after a successful include.
+            </li>
+            <li>
+              If migrating the portfolio’s interim registration API, replace
+              CFJS.dataSources registrations with named global functions or
+              window values and update source attributes.
+            </li>
+          </ol>
+          <pre><code class="language-javascript">// Before: interim portfolio API
+      CFJS.dataSources.set(&quot;projects&quot;, async () =&gt; data);
+      // After
+      window.loadProjects = async () =&gt; data;
+      // Use source=&quot;loadProjects&quot; in the data element.</code></pre>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="concurrent-includes">
+        <div class="explanation">
+          <h2 id="concurrent-includes">Nested requests are sequential</h2>
+          <p>
+            Nested include branches now prepare sequentially in markup order. A
+            failure prevents later branches in that tree from starting. Separate
+            live includes remain independent. Scripts activate only after the
+            complete tree mounts.
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="concurrent-data">
+        <div class="explanation">
+          <h2 id="concurrent-data">Data preparation is sequential</h2>
+          <p>
+            Data-template siblings and loop rows prepare sequentially. Each
+            result mounts atomically; row scopes, style precedence and script
+            order remain stable. Later siblings and rows do not prepare after a
+            failure.
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="documentation-links">
+        <div class="explanation">
+          <h2 id="documentation-links">Documentation links</h2>
+          <p>
+            The old root hash links redirect to topic pages and matching
+            anchors. Static topic URLs work without a router or server rewrites.
+            This redesign changes no CFJS public runtime behavior.
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="render-scheduling">
+        <div class="explanation">
+          <h2 id="render-scheduling">Render yielding removed</h2>
+          <p>
+            An earlier development build yielded to the browser on an 8 ms
+            budget while preparing includes and data renders. That scheduler has
+            been removed: once its requests arrive, a render's detached
+            preparation, mount and script activation run without CFJS-initiated
+            yields. Existing markup needs no migration. Code that relied on
+            other tasks running between a response and cf:load should listen for
+            cf:load instead. Repeated includes parse cached response text
+            afresh; preparation is sequential and mounting remains atomic. Keep
+            large lists bounded in your application.
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="nested-source-scope">
+        <div class="explanation">
+          <h2 id="nested-source-scope">Nested sources are global only</h2>
+          <p>
+            Nested <code>source</code> paths now resolve only on
+            <code>window</code>. Replace row-local sources with explicit global
+            providers or render prepared row data directly with bindings, loops
+            and conditions. A global with the same root as a row alias now wins.
+            Result binding scopes remain independent.
+          </p>
+        </div>
+      </section>
+
+      <section class="reference-row" aria-labelledby="direct-docs">
+        <div class="explanation">
+          <h2 id="direct-docs">Documentation served directly for v0.1</h2>
+          <p>
+            Serve <code>docs/</code> as authored. The documentation build and
+            deployment packaging commands have been removed; there is no
+            generated <code>dist/</code> site. Existing topic URLs are
+            unchanged. Each root topic HTML file contains both its document
+            setup and content, supplied directly to the shared shell. Separate
+            <code>pages/</code> fragments have been folded into their topic
+            files. Reusable fragments live in <code>components/</code>, metadata
+            in <code>data/</code>, and browser code, styles, and dependencies in
+            their own folders.
+          </p>
+          <p>
+            Navigation and previous/next links use CFJS data templates.
+            Documentation consumers need neither npm nor a build. Compare and
+            synchronize <code>docs/vendor/cfjs.js</code> with
+            <code>npm run docs:sync</code> after runtime changes; tests check
+            equality.
+          </p>
+          <p>
+            The old performance audit commands and reports have been removed.
+            Runtime behavior and runnable performance examples are unchanged.
+          </p>
+        </div>
+      </section>
+    </cf-include>
+    <noscript
+      ><p>
+        CFJS documentation requires JavaScript. Enable it to load the topics and
+        examples.
+      </p></noscript
+    >
+  </body>
+</html>

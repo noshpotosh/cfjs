@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="CFJS documentation: Performance" />
+    <title>Performance · CFJS</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./styles/docs.css" />
+    <script defer src="./scripts/data.js"></script>
+    <script defer src="./vendor/cfjs.js"></script>
+    <script type="module" src="./scripts/docs.js"></script>
+  </head>
+  <body data-topic="performance">
+    <cf-include src="./components/shell.html">
+      <div class="page-heading">
+        <p class="breadcrumb">
+          <a href="./index.html">Docs</a>
+          <span aria-hidden="true">/</span> Guides
+        </p>
+        <h1 id="performance">Performance</h1>
+      </div>
+      <p>
+        CFJS is small, but content fetched after JavaScript starts can still
+        delay the first useful view. Measure the actual page before tuning it.
+      </p>
+      <section class="reference-row" aria-labelledby="critical-content">
+        <div class="explanation">
+          <h2 id="critical-content">Show critical content early</h2>
+          <p>
+            Keep the primary heading and hero in initial HTML. Use an ordinary
+            image src, width and height, and fetchpriority="high" for the one
+            critical image. Do not lazy-load the hero; reserve lazy loading for
+            offscreen images. Load CFJS with defer and put essential layout CSS
+            in the document stylesheet.
+          </p>
+          <p>
+            The example reserves space in a persistent section outside the
+            replaced include. Loading content and final content should have
+            similar dimensions. This reduces layout movement without hiding the
+            page.
+          </p>
+        </div>
+        <div class="examples">
+          <p>
+            <a href="./examples/performance.html"
+              >Open Static critical content and reserved loading space</a
+            >
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="progressive-loading">
+        <div class="explanation">
+          <h2 id="progressive-loading">
+            Keep critical content outside include trees
+          </h2>
+          <p>
+            Progressive mounting is not supported. Put critical content in
+            initial HTML or use separate live includes. Nested branches wait for
+            complete preparation before mounting.
+          </p>
+        </div>
+        <div class="examples" data-example="progressive"></div>
+      </section>
+      <section class="reference-row" aria-labelledby="optional-data">
+        <div class="explanation">
+          <h2 id="optional-data">Keep optional data independent</h2>
+          <p>
+            Return basic list data before optional work. Use a nested global
+            <code>source="optionalDetails"</code> with a loading template.
+            Nested sources cannot read row aliases. For row-specific details,
+            prepare them in the parent source or use application code. Keep
+            loading and result dimensions similar.
+          </p>
+        </div>
+        <div class="examples" data-example="independent"></div>
+      </section>
+      <section class="reference-row" aria-labelledby="assembly-cost">
+        <div class="explanation">
+          <h2 id="assembly-cost">Serve browser-native source</h2>
+          <p>
+            There is no CFJS compiler or server renderer. Serve authored pages
+            and fragments directly, and measure the browser requests and
+            rendering costs. Keep essential content in the entry document.
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="composition-cost">
+        <div class="explanation">
+          <h2 id="composition-cost">Keep critical include trees shallow</h2>
+          <p>
+            Nested branches prepare sequentially, and nested URLs are discovered
+            after their parents arrive. Separate live includes start
+            independently. A whole include tree mounts atomically: a slow nested
+            footer can delay critical content in the same tree. Keep critical
+            content outside that tree or in an independent branch.
+          </p>
+          <p>
+            HTML and JSON requests are deduplicated within the page. Configure
+            compression and appropriate HTTP caching on your host; in-memory
+            request caching does not replace those server settings.
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="scheduling">
+        <div class="explanation">
+          <h2 id="scheduling">Large data renders and responsiveness</h2>
+          <p>
+            Preparation happens off-document. Loading content stays visible
+            until the complete result mounts, and scripts activate in document
+            order. CFJS does not yield to the browser during preparation: once
+            its requests have arrived, a render's cloning, binding, mounting and
+            script activation run without CFJS-initiated pauses, so very large
+            renders can produce long tasks.
+          </p>
+          <p>
+            Keep large lists bounded in your application. There is no pagination
+            or virtualization API in CFJS.
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="template-cache">
+        <div class="explanation">
+          <h2 id="template-cache">Fragment request caching</h2>
+          <p>
+            Each successful HTML request keeps response text for the document
+            lifetime. Every include parses that text afresh before applying
+            slots, nested includes and bindings. DOM is never shared. Scripts
+            activate per instance; styles retain deduplication and order.
+            Redirect aliases use separate requested-URL keys. Failed requests
+            are evicted; validation failures retain cached response text. There
+            is no cache invalidation API.
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="measure">
+        <div class="explanation">
+          <h2 id="measure">Measure your page</h2>
+          <p>
+            Use your browser's network and performance tools to inspect the
+            actual page. Compare cold and warm loads, keep the browser and
+            machine consistent, and look for delayed critical content, layout
+            shifts, and long main-thread tasks. Results from one local page are
+            not performance guarantees.
+          </p>
+          <p>
+            Keep critical content in the entry HTML, use independent includes
+            where appropriate, and bound large lists. The v0.1 repository keeps
+            runnable examples and behavioral browser tests; the older benchmark
+            runners and historical reports have been removed.
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="traces">
+        <div class="explanation">
+          <h2 id="traces">Inspect browser traces</h2>
+          <p>
+            Record a load or interaction in browser developer tools to inspect
+            request timing, scripting, layout, and paint. Profiling adds
+            overhead, so confirm improvements with ordinary page loads too. CFJS
+            has no production tracing API.
+          </p>
+        </div>
+      </section>
+    </cf-include>
+    <noscript
+      ><p>
+        CFJS documentation requires JavaScript. Enable it to load the topics and
+        examples.
+      </p></noscript
+    >
+  </body>
+</html>

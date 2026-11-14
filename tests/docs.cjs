@@ -1,0 +1,113 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs/promises');
+const path = require('node:path');
+module.exports = async (browser, origin) => {
+  const base = origin + '/docs/';
+  const topics = JSON.parse(await fs.readFile(path.join(__dirname, '../docs/data/topics.json')));
+  const legacy = {};
+  const manifest = {"hello": {"title": "One-time data rendering", "files": ["hello.html"]}, "composition": {"title": "Include with named and default slots", "files": ["composition.html", "card.html"]}, "json": {"title": "JSON response", "files": ["json.html", "../data/examples/projects.json"]}, "global": {"title": "Global source", "files": ["global.html", "../scripts/examples/global.js"]}, "nested": {"title": "Nested loops and an included row", "files": ["nested.html", "project.html", "../data/examples/projects.json"]}, "states": {"title": "Loading, empty, and failure states", "files": ["states.html"]}, "bindings": {"title": "Text and attribute bindings", "files": ["bindings.html"]}, "scripts": {"title": "Inline script activation", "files": ["scripts.html", "status.html", "../scripts/examples/status.js"]}, "events": {"title": "An include load event", "files": ["events.html", "card.html"]}, "conditional": {"title": "Conditional project links", "files": ["conditional.html"]}, "parallel": {"title": "Sequential panels with ordered scripts", "files": ["parallel.html", "parallel-tree.html", "parallel-first.html", "parallel-second.html"]}, "performance": {"title": "Static critical content and reserved loading space", "files": ["performance.html", "performance-panel.html", "performance-row.html"]}, "progressive": {"title": "Parents and nested fragments mount together", "files": ["progressive.html", "progressive-parent.html", "progressive-child.html"]}, "independent": {"title": "Optional global details load independently", "files": ["independent.html", "../scripts/examples/independent.js"]}};
+  assert.deepEqual(await fs.readFile(path.join(__dirname, '../docs/vendor/cfjs.js')), await fs.readFile(path.join(__dirname, '../cfjs.js')));
+  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+  const errors = [], failedIncludes = [], failedRequests = [], redirectExampleRequests = [];
+  page.on('request', request => {
+    if (request.resourceType() !== 'fetch' || !request.url().startsWith(base + 'examples/')) return;
+    const url = new URL(request.frame().url());
+    if (['/docs/', '/docs/index.html'].includes(url.pathname) && Object.hasOwn(legacy, url.hash.slice(1))) {
+      redirectExampleRequests.push(request.url());
+    }
+  });
+  page.on('pageerror', error => errors.push(error.message));
+  page.on('response', response => { if (response.status() >= 400) failedRequests.push(response.url()); });
+  await page.addInitScript(() => {
+    window.docsFailures = [];
+    document.addEventListener('cf:error', event => {
+      if (event.target.tagName === 'CF-INCLUDE') window.docsFailures.push(event.detail.error.message);
+    });
+  });
+  // Finish composition before the next navigation; unloading active fetches can
+  // produce native access-control errors in WebKit. Keep real page errors fatal.
+  async function settled() {
+    await page.waitForFunction(() => document.body.dataset.docsReady === 'true' && !document.querySelector('cf-include, cf-data[aria-busy]'));
+  }
+  async function ready(slug) {
+    await page.goto(base + slug + '.html');
+    await settled();
+    assert.equal(await page.locator('[aria-current="page"]').getAttribute('data-nav-topic'), slug);
+    failedIncludes.push(...await page.evaluate(() => window.docsFailures));
+  }
+  // Crawl the rendered site, including client-rendered chrome. Check every local fragment.
+  const links = new Set();
+  const targets = new Map();
+  for (const topic of topics) {
+    const source = await fs.readFile(path.join(__dirname, '../docs', topic.slug + '.html'), 'utf8');
+    assert(source.includes('<cf-include'), 'Docs retain browser includes');
+    await ready(topic.slug);
+    assert.equal(await page.title(), topic.title + ' · CFJS');
+    assert.equal(await page.locator('aside nav a').count(), topics.length);
+    const ids = await page.locator('[id]').evaluateAll(nodes => nodes.map(node => node.id));
+    assert.equal(ids.length, new Set(ids).size, 'Unique ids in ' + topic.slug);
+    targets.set(topic.slug + '.html', new Set(ids));
+    for (const href of await page.locator('a[href]').evaluateAll(nodes => nodes.map(node => node.href))) links.add(href);
+    for (const width of [1440, 900, 390]) {
+      await page.setViewportSize({ width, height: 1000 });
+      assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${topic.slug} fits ${width}px`);
+      for (const row of await page.locator('.reference-row:has(.examples)').all()) {
+        const text = await row.locator('.explanation').boundingBox();
+        const example = await row.locator('.examples').boundingBox();
+        if (width >= 1200) assert(example.x > text.x + text.width - 1 && Math.abs(example.y - text.y) < 2, 'Desktop examples align with explanations');
+        else assert(example.y >= text.y + text.height - 1 && example.y - text.y - text.height < 30, 'Examples immediately follow explanations');
+      }
+    }
+  }
+  for (const href of links) {
+    const url = new URL(href);
+    if (url.origin !== origin) continue;
+    assert(url.pathname.startsWith('/docs/'), 'Link remains under subdirectory: ' + href);
+    const relative = decodeURIComponent(url.pathname.slice('/docs/'.length));
+    if (url.hash && targets.has(relative)) assert(targets.get(relative).has(decodeURIComponent(url.hash.slice(1))), 'Existing anchor: ' + href);
+    assert((await page.request.get(url.href.split('#')[0])).ok(), 'Resolvable link: ' + href);
+  }
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await ready('cf-data');
+  await page.reload();
+  await page.waitForFunction(() => document.body.dataset.docsReady === 'true' && !document.querySelector('cf-include, cf-data[aria-busy]'));
+  await page.locator('aside a[href="./cf-loop.html"]').click();
+  await page.waitForURL(base + 'cf-loop.html');
+  await settled();
+  await page.goBack();
+  await settled();
+  assert.equal(new URL(page.url()).pathname, '/docs/cf-data.html');
+  await page.goForward();
+  await settled();
+  assert.equal(new URL(page.url()).pathname, '/docs/cf-loop.html');
+  // Standalone examples are the same files used by read-only live iframes.
+  for (const [key, entry] of Object.entries(manifest)) {
+    await page.goto(base + 'examples/' + entry.files[0]);
+    if (key === 'states') {
+      await page.getByText('Loading projects…', { exact: true }).waitFor();
+      await page.getByText('No projects yet.', { exact: true }).waitFor();
+      assert.equal(await page.locator('[role="alert"]').count(), 1);
+      assert.equal(await page.locator('[data-cf-error]').count(), 1);
+    } else {
+      await page.waitForFunction(() => !document.querySelector('cf-include, cf-data[aria-busy]'));
+      assert.equal(await page.locator('[data-cf-error]').count(), 0);
+      if (key === 'performance') { assert.equal(await page.locator('h1').textContent(), 'Content available immediately'); assert.deepEqual(await page.locator('.results p').allTextContents(), ['First result', 'Second result']); assert(await page.locator('.results').evaluate(node => node.getBoundingClientRect().height >= 160)); }
+      if (key === 'composition') assert.equal(await page.locator('.card h2').textContent(), 'Composed with CFJS');
+      if (key === 'progressive') { assert.equal(await page.locator('h2').textContent(), 'Parent is ready'); assert.equal(await page.locator('#progressive-example-child').textContent(), 'Child is ready with its parent.'); }
+      if (key === 'nested') { assert.equal(await page.locator('.project').count(), 2); assert.deepEqual(await page.locator('li').allTextContents(), ['HTML', 'CSS', 'JavaScript']); }
+      if (key === 'conditional') { assert.equal(await page.locator('a').textContent(), 'Live project'); assert.equal(await page.locator('strong').textContent(), 'Featured'); assert.equal(await page.locator('span').textContent(), 'Local project'); assert.equal(await page.locator('cf-if').count(), 0); }
+      if (key === 'json') assert.equal(await page.locator('h2').textContent(), 'Selected projects');
+      if (key === 'independent') { assert.equal(await page.locator('h2').textContent(), 'Available immediately'); await page.getByText('Optional details arrived independently.', { exact: true }).waitFor(); }
+      if (key === 'global') assert.equal(await page.locator('h2').textContent(), 'A global value');
+      if (key === 'bindings') { await page.waitForFunction(() => document.querySelector('img').naturalWidth > 0);  assert.equal(await page.locator('img').nth(0).getAttribute('src'), '../assets/project-mark.svg'); assert.equal(await page.locator('img').nth(0).getAttribute('alt'), 'CFJS project mark'); for (const index of [1, 2]) { assert.equal(await page.locator('img').nth(index).getAttribute('src'), null); assert.equal(await page.locator('img').nth(index).getAttribute('alt'), ''); }  assert.equal(await page.locator('a').getAttribute('data-kind'), 'demo'); assert.equal(await page.locator('p').textContent(), ''); }
+      if (key === 'scripts') assert.match(await page.locator('.status').textContent(), /ran after mounting/);
+      if (key === 'events') assert.match(await page.locator('output').textContent(), /target: body/);
+    }
+  }
+  assert.deepEqual(errors, []);
+  assert.deepEqual(failedIncludes, []);
+  assert.deepEqual(failedRequests, []);
+  assert.deepEqual(redirectExampleRequests, [], 'Legacy redirects do not start examples on the outgoing page');
+  await page.close();
+  console.log('PASS: documentation topics, local links, history, available interactions, runnable examples and three layouts');
+};

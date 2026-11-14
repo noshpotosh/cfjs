@@ -1,10 +1,12 @@
-<header><a href="./index.html">CFJS</a></header>
-<nav aria-label="Topics">
-  <a href="./index.html">CFJS</a> <a href="./cf-include.html">Includes</a>
-  <a href="./slots.html">Slots</a> <a href="./paths.html">Paths and requests</a>
-  <a href="./events.html">Events and lifecycle</a>
-  <a href="./scripts.html">Scripts and styles</a>
-  <a href="./cf-data.html">Data</a> <a href="./bindings.html">Bindings</a>
-  <a href="./cf-loop.html">Loops</a> <a href="./cf-if.html">Conditions</a>
-</nav>
-<main id="main"><slot></slot></main>
+<a class="skip" href="#main">Skip to content</a>
+<cf-include src="./components/header.html"></cf-include>
+<div class="layout">
+  <aside id="sidebar" aria-label="Documentation navigation">
+    <cf-include src="./components/navigation.html"></cf-include>
+  </aside>
+  <main id="main" tabindex="-1">
+    <slot><p>No topic supplied.</p></slot>
+    <cf-include src="./components/topic-links.html"></cf-include>
+    <cf-include src="./components/footer.html"></cf-include>
+  </main>
+</div>

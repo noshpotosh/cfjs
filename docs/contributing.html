@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="CFJS documentation: Contributing" />
+    <title>Contributing · CFJS</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./styles/docs.css" />
+    <script defer src="./scripts/data.js"></script>
+    <script defer src="./vendor/cfjs.js"></script>
+    <script type="module" src="./scripts/docs.js"></script>
+  </head>
+  <body data-topic="contributing">
+    <cf-include src="./components/shell.html">
+      <div class="page-heading">
+        <p class="breadcrumb">
+          <a href="./index.html">Docs</a>
+          <span aria-hidden="true">/</span> Resources
+        </p>
+        <h1 id="contributing">Contributing</h1>
+      </div>
+      <section class="reference-row" aria-labelledby="workflow">
+        <div class="explanation">
+          <h2 id="workflow">Development workflow</h2>
+          <p>
+            Use Node.js 22.19 or newer for the test tools. The documentation
+            itself can be served by any static HTTP server without installing
+            dependencies or building files.
+          </p>
+          <pre><code class="language-javascript">npm run docs:dev
+
+      # To run browser tests:
+      npm ci
+      npx playwright install chromium
+      npm test</code></pre>
+          <p>
+            Root <code>cfjs.js</code> is canonical. Both
+            <code>docs/vendor/cfjs.js</code> and the sibling
+            <code>../portfolio/src/vendor/cfjs.js</code> are portable
+            byte-identical copies, never cross-repository symlinks. Compare
+            divergent copies before syncing. After runtime changes, run
+            <code>npm run docs:sync</code> here, then
+            <code>npm run cfjs:sync</code> and
+            <code>npm run cfjs:check</code> in the portfolio. Run the library
+            suite and portfolio unit and browser tests. Report unavailable
+            sibling verification as outstanding.
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="authoring">
+        <div class="explanation">
+          <h2 id="authoring">Author documentation</h2>
+          <p>
+            Each root topic HTML file contains its content inside the
+            <code>components/shell.html</code> include. Edit the topic in that
+            one file. Reuse components for the shared shell and navigation; keep
+            data, scripts, styles, examples, and vendor dependencies in their
+            own folders. Keep reusable component markup before any scripts and
+            styles.
+          </p>
+          <p>
+            Register topics in <code>data/topics.json</code>, preserve stable
+            heading IDs. Navigation and previous/next links render with CFJS
+            providers and templates. Keep runnable HTML and example-specific
+            fragments in <code>examples/</code>, JSON in
+            <code>data/examples/</code>, scripts in
+            <code>scripts/examples/</code>, images in <code>assets/</code>, and
+            shared example CSS in <code>styles/examples.css</code>.
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="verification">
+        <div class="explanation">
+          <h2 id="verification">Verify changes</h2>
+          <p>
+            Every public behavior change must update the reference, guides,
+            README, runnable examples, browser coverage, and migration guidance
+            when breaking.
+          </p>
+          <p>
+            Format HTML with <code>npm run docs:format</code>, or check it
+            without changes using <code>npm run docs:format:check</code>. The
+            pinned Prettier version formats HTML using its configured defaults.
+            Run <code>npm test</code>. It verifies the docs runtime copy and
+            serves source files directly for browser checks covering runtime
+            behavior, topic links, live examples, and desktop, tablet, and
+            mobile layouts. Visually inspect affected pages too.
+          </p>
+          <p>
+            Set <code>CHROMIUM_PATH</code> for installed Chrome, or
+            <code>BROWSER=firefox</code> / <code>BROWSER=webkit</code> when
+            those Playwright browsers are installed. A passing run verifies only
+            that engine. No benchmark or build tooling is required.
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="repository">
+        <div class="explanation">
+          <h2 id="repository">Repository and release preparation</h2>
+          <p>
+            This page documents the repository workflow. Browser suites can be
+            run locally; no CI workflow is configured. Version 0.1.0 is pending
+            release; licensing and release publication remain separate steps.
+            The npm package stays private.
+          </p>
+          <p>
+            To host the documentation, serve the contents of
+            <code>docs/</code> unchanged on a static HTTP host. Relative URLs
+            support subdirectory hosting. There is no deployment packaging
+            command. Publish only when requested.
+          </p>
+        </div>
+      </section>
+    </cf-include>
+    <noscript
+      ><p>
+        CFJS documentation requires JavaScript. Enable it to load the topics and
+        examples.
+      </p></noscript
+    >
+  </body>
+</html>

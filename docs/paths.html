@@ -3,20 +3,117 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="CFJS documentation: Paths and requests" />
     <title>Paths and requests · CFJS</title>
-    <link rel="stylesheet" href="./styles/examples.css" />
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./styles/docs.css" />
+    <script defer src="./scripts/data.js"></script>
     <script defer src="./vendor/cfjs.js"></script>
+    <script type="module" src="./scripts/docs.js"></script>
   </head>
-  <body>
-    <cf-include src="./components/shell.html"
-      ><h1>Paths and requests</h1>
+  <body data-topic="paths">
+    <cf-include src="./components/shell.html">
+      <div class="page-heading">
+        <p class="breadcrumb">
+          <a href="./index.html">Docs</a>
+          <span aria-hidden="true">/</span> Reference
+        </p>
+        <h1 id="paths">Paths and requests</h1>
+      </div>
+      <section class="reference-row" aria-labelledby="base">
+        <div class="explanation">
+          <h2 id="base">Document-relative paths</h2>
+          <p>
+            Include and JSON URLs resolve against <code>document.baseURI</code>.
+            For a page at <code>/guide/index.html</code>,
+            <code>./card.html</code> means <code>/guide/card.html</code>, even
+            inside a fragment fetched from another directory or redirected URL.
+            Includes remove URL hashes; JSON request URLs retain them.
+          </p>
+          <p>
+            Asset attributes are left unchanged and follow native browser rules.
+            External CSS URLs are relative to the stylesheet; external module
+            imports are relative to the module. Inline module imports use the
+            document base. Active <code>base</code> elements inside include
+            fragments are rejected.
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="requests">
+        <div class="explanation">
+          <h2 id="requests">Requests and caching</h2>
+          <table>
+            <caption>
+              Request behavior by source
+            </caption>
+            <thead>
+              <tr>
+                <th>Source</th>
+                <th>Cache</th>
+                <th>Timeout</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Include HTML</td>
+                <td>Shared by absolute URL without hash</td>
+                <td>None</td>
+              </tr>
+              <tr>
+                <td>cf-data src</td>
+                <td>Separate JSON cache by absolute URL</td>
+                <td>10 seconds</td>
+              </tr>
+              <tr>
+                <td>cf-data source</td>
+                <td>No CFJS cache</td>
+                <td>None</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            The HTML and JSON caches share successful and in-flight requests for
+            the current document lifetime. Separate live outer includes start
+            independently; nested branches prepare sequentially; their DOM
+            positions and script activation order remain stable. Each render
+            creates fresh DOM. Failed requests are evicted; configuration or
+            render failures do not invalidate a successful response. Cache
+            mechanics are internal; no cache inspection or clearing API is
+            supported.
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="constraints">
+        <div class="explanation">
+          <h2 id="constraints">Failures and constraints</h2>
+          <p>
+            HTTP(S) is required for include and JSON requests. Browser CORS,
+            CSP, and network policy apply. Non-success HTTP status is an error;
+            JSON also fails on invalid JSON. Include cycles, including
+            redirects, are rejected. At most 32 fragment levels (depths 0
+            through 31) are prepared per branch.
+          </p>
+          <p>
+            Removing an element does not abort a request. There is no automatic
+            retry, reload, or cancellation API. Use a new element to retry. Read
+            <a href="./troubleshooting.html">Troubleshooting and limitations</a
+            >.
+          </p>
+        </div>
+      </section>
       <p>
-        All includes and asset paths resolve against the entry document base
-        URL, including after redirects. Includes require HTTP(S). Circular
-        paths, redirected cycles, nesting beyond 32 levels, missing sources, and
-        fragment base elements fail composition. Literal URL attributes are
-        unchanged.
-      </p></cf-include
+        Successful HTML requests cache response text. Each include parses fresh
+        markup and performs its own slot distribution, bindings, and cycle/depth
+        checks. See
+        <a href="./performance.html#template-cache">fragment request caching</a
+        >.
+      </p>
+    </cf-include>
+    <noscript
+      ><p>
+        CFJS documentation requires JavaScript. Enable it to load the topics and
+        examples.
+      </p></noscript
     >
   </body>
 </html>

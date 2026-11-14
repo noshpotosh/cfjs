@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="CFJS documentation: Repeat templates" />
+    <title>Repeat templates · CFJS</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./styles/docs.css" />
+    <script defer src="./scripts/data.js"></script>
+    <script defer src="./vendor/cfjs.js"></script>
+    <script type="module" src="./scripts/docs.js"></script>
+  </head>
+  <body data-topic="repeat">
+    <cf-include src="./components/shell.html">
+      <div class="page-heading">
+        <p class="breadcrumb">
+          <a href="./index.html">Docs</a>
+          <span aria-hidden="true">/</span> Guides
+        </p>
+        <h1 id="repeat">Repeat templates</h1>
+      </div>
+      <section class="reference-row" aria-labelledby="rows">
+        <div class="explanation">
+          <h2 id="rows">Render nested arrays</h2>
+          <p>
+            Load an object with an array, then set <code>items</code> to its
+            property path and <code>as</code> to the item alias. Nest a second
+            loop for each item’s children. Outer aliases stay available inside
+            nested loops; a reused alias shadows its outer value.
+          </p>
+        </div>
+        <div class="examples">
+          <p>
+            <a href="./examples/nested.html"
+              >Open Nested loops and an included row</a
+            >
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="fragments">
+        <div class="explanation">
+          <h2 id="fragments">Share row markup</h2>
+          <p>
+            Inside a row template, use <code>cf-include</code> for shared
+            markup. Included markup and assigned slot content inherit the row
+            context. Keep paths relative to the entry page.
+          </p>
+          <p>
+            Provide a static <code>template data-state="empty"</code> for an
+            empty array. A missing or non-array value is an error, not an empty
+            result. See <a href="./cf-loop.html">cf-loop</a> and
+            <a href="./bindings.html">Bindings</a>.
+          </p>
+        </div>
+      </section>
+      <p>
+        Use <a href="./cf-if.html">cf-if</a> to choose a branch once in the
+        current data or loop context. Only the selected template is rendered;
+        nested data keeps its own scope. Loading, error, and loop empty
+        templates remain static.
+      </p>
+    </cf-include>
+    <noscript
+      ><p>
+        CFJS documentation requires JavaScript. Enable it to load the topics and
+        examples.
+      </p></noscript
+    >
+  </body>
+</html>

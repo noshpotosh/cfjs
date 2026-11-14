@@ -1,0 +1,9 @@
+<cf-data source="performanceRows" name="rows"
+  ><template
+    ><cf-loop items="rows" as="row"
+      ><template
+        ><cf-include
+          src="./performance-row.html"
+        ></cf-include></template></cf-loop></template
+  ><template data-state="loading"><p>Loading results…</p></template></cf-data
+>

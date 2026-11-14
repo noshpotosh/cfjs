@@ -3,17 +3,86 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>CFJS · CFJS</title>
-    <link rel="stylesheet" href="./styles/examples.css" />
+    <meta name="description" content="CFJS documentation: Introduction" />
+    <title>Introduction · CFJS</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./styles/docs.css" />
+    <script defer src="./scripts/data.js"></script>
     <script defer src="./vendor/cfjs.js"></script>
+    <script type="module" src="./scripts/docs.js"></script>
   </head>
-  <body>
-    <cf-include src="./components/shell.html"
-      ><h1>CFJS</h1>
+  <body data-topic="index">
+    <cf-include src="./components/shell.html">
+      <div class="page-heading">
+        <p class="breadcrumb">
+          <a href="./index.html">Docs</a>
+          <span aria-hidden="true">/</span> Getting started
+        </p>
+        <h1 id="index">Introduction</h1>
+      </div>
       <p>
-        Compose trusted HTML fragments in the browser, with no build step or
-        Shadow DOM. Serve this directory over HTTP(S).
-      </p></cf-include
+        CFJS composes HTML fragments, loads JSON or global JavaScript data, and
+        repeats templates in the regular DOM. Add one browser script to an
+        HTTP(S) site; no application build step or runtime dependencies are
+        required.
+      </p>
+      <p>
+        <strong>Preparing v0.1.0.</strong> CFJS is an early, pre-1.0 framework
+        developed alongside a portfolio that uses it. The API is still evolving;
+        expect changes before 1.0.
+      </p>
+      <section class="reference-row" aria-labelledby="choose">
+        <div class="explanation">
+          <h2 id="choose">Choose a feature</h2>
+          <p>
+            Use <a href="./cf-include.html"><code>cf-include</code></a> for
+            shared markup and <a href="./slots.html">slots</a> for page-specific
+            children. Use <a href="./cf-data.html"><code>cf-data</code></a> to
+            load a value, <a href="./cf-loop.html"><code>cf-loop</code></a> to
+            repeat an array, and <a href="./bindings.html">bindings</a> to write
+            text and attributes.
+          </p>
+          <p>
+            Start with the <a href="./quickstart.html">Quickstart</a>, or follow
+            a guide to <a href="./compose.html">compose reusable fragments</a>,
+            <a href="./render-data.html">render data</a>, or
+            <a href="./repeat.html">repeat templates</a>.
+          </p>
+        </div>
+        <div class="examples">
+          <p>
+            <a href="./examples/hello.html">Open One-time data rendering</a>
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="model">
+        <div class="explanation">
+          <h2 id="model">Rendering model</h2>
+          <p>
+            CFJS uses one-time composition in the light DOM. Existing CSS
+            selectors and browser tools apply. Includes create fresh nodes; data
+            elements render once. Changing a source attribute or mutating a
+            value does not update an existing result.
+          </p>
+          <p>
+            Use trusted fragments and code. CFJS is not a sanitizer, a reactive
+            framework, or an expression evaluator. Read
+            <a href="./troubleshooting.html">limitations and troubleshooting</a>
+            before integrating untrusted content.
+          </p>
+        </div>
+      </section>
+      <p>
+        CFJS composition and data rendering run entirely in the browser. Serve
+        the authored HTML and runtime directly over HTTP(S); JavaScript is
+        required.
+      </p>
+    </cf-include>
+    <noscript
+      ><p>
+        CFJS documentation requires JavaScript. Enable it to load the topics and
+        examples.
+      </p></noscript
     >
   </body>
 </html>

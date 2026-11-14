@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="CFJS documentation: Compose reusable fragments"
+    />
+    <title>Compose reusable fragments · CFJS</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./styles/docs.css" />
+    <script defer src="./scripts/data.js"></script>
+    <script defer src="./vendor/cfjs.js"></script>
+    <script type="module" src="./scripts/docs.js"></script>
+  </head>
+  <body data-topic="compose">
+    <cf-include src="./components/shell.html">
+      <div class="page-heading">
+        <p class="breadcrumb">
+          <a href="./index.html">Docs</a>
+          <span aria-hidden="true">/</span> Guides
+        </p>
+        <h1 id="compose">Compose reusable fragments</h1>
+      </div>
+      <section class="reference-row" aria-labelledby="prepare">
+        <div class="explanation">
+          <h2 id="prepare">Create a reusable fragment</h2>
+          <p>
+            Put the shared article structure in <code>card.html</code>. Add a
+            named <code>slot</code> for the heading and a default slot for body
+            content. Fallback inside each slot is used when no matching child is
+            supplied.
+          </p>
+        </div>
+        <div class="examples">
+          <p>
+            <a href="./examples/composition.html"
+              >Open Include with named and default slots</a
+            >
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="supply">
+        <div class="explanation">
+          <h2 id="supply">Supply content from a page</h2>
+          <p>
+            Set <code>slot="heading"</code> on a direct child of
+            <code>cf-include</code>. Unnamed elements and text nodes fill the
+            default slot. Only the first matching slot receives a given child;
+            unmatched children are discarded. Whitespace text can fill a default
+            slot.
+          </p>
+          <p>
+            Composition is one-time. Assigned nodes are cloned, so attach
+            listeners after mounting rather than expecting listeners on supplied
+            nodes to transfer. See <a href="./slots.html">Slots</a> for the full
+            rules.
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="initialize">
+        <div class="explanation">
+          <h2 id="initialize">Initialize the result</h2>
+          <p>
+            Put instance initialization in a function wrapper inside the
+            fragment, or delegate events from the page. Inline classic scripts
+            run after the whole include tree is inserted. Keep critical content
+            outside slow include trees. Relative script, image, and nested
+            include URLs still belong to the entry page. See
+            <a href="./scripts.html">Scripts and styles</a> and
+            <a href="./paths.html">Paths and requests</a>.
+          </p>
+        </div>
+      </section>
+    </cf-include>
+    <noscript
+      ><p>
+        CFJS documentation requires JavaScript. Enable it to load the topics and
+        examples.
+      </p></noscript
+    >
+  </body>
+</html>
