@@ -17,7 +17,7 @@
   const HTTP_PROTOCOLS = ['http:', 'https:'];
   const LINK_PROTOCOLS = [...HTTP_PROTOCOLS, 'mailto:', 'tel:'];
   const IDENTIFIER_PATTERN = /^[A-Za-z_$][\w$]*$/;
-  const ATTRIBUTE_BINDING_PATTERN = /^cf-(id|title|aria-[\w-]+|data-[\w-]+)$/;
+  const ATTRIBUTE_BINDING_PATTERN = /^cf-(id|title|class|datetime|aria-[\w-]+|data-[\w-]+)$/;
   const BLOCKED_PATH_KEYS = ['__proto__', 'constructor', 'prototype'];
   const MAX_INCLUDE_DEPTH = 32;
   const JSON_TIMEOUT_MS = 10000;

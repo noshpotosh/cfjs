@@ -90,6 +90,13 @@ module.exports = async function testData(browser, base) {
     assert.equal(await page.locator('img').nth(1).getAttribute('src'), null);
     assert.equal(await page.locator('img').nth(2).getAttribute('src'), null);
     assert.equal(await page.locator('img').first().getAttribute('alt'), 'CFJS project mark');
+    assert.equal(await page.locator('a#project').getAttribute('title'), 'Project details');
+    assert.equal(await page.locator('.contribution-day').getAttribute('class'), 'contribution-day contribution-day--level3');
+    assert.equal(await page.locator('.contribution-day').getAttribute('title'), '5 contributions on 2026-11-14');
+    assert.equal(await page.locator('time').getAttribute('class'), 'commit-date');
+    assert.equal(await page.locator('time').getAttribute('datetime'), '2026-11-14T12:30:00Z');
+    assert.equal(await page.locator('time').textContent(), 'Nov 14, 2026');
+    assert.equal(await page.locator('[cf-class], [cf-datetime], [cf-title], [cf-id], [cf-aria-label], [cf-data-kind]').count(), 0);
     await page.goto(base + 'docs/examples/nested.html');
     await page.locator('.project').first().waitFor();
     assert.equal(await page.locator('.project').count(), 2);
