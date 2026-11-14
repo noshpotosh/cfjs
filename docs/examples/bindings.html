@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CFJS live example</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="../styles/examples.css" />
+    <script>
+      window.project = {
+        title: "View project",
+        url: "#project",
+        hint: "Project details",
+        unsafe: "javascript:alert(1)",
+        image: "../assets/project-mark.svg",
+        imageAlt: "CFJS project mark",
+        id: "project",
+        label: "View the project",
+        kind: "demo",
+      };
+    </script>
+    <script defer src="../vendor/cfjs.js"></script>
+  </head>
+  <body>
+    <cf-data source="project" name="item">
+      <template>
+        <a
+          cf-href="item.url"
+          cf-text="item.title"
+          cf-title="item.hint"
+          cf-id="item.id"
+          cf-aria-label="item.label"
+          cf-data-kind="item.kind"
+        ></a>
+        <img
+          cf-src="item.image"
+          cf-alt="item.imageAlt"
+          width="32"
+          height="32"
+        />
+        <img
+          src="../assets/project-mark.svg"
+          cf-src="item.missing"
+          cf-alt="item.missing"
+        />
+        <img
+          src="../assets/project-mark.svg"
+          cf-src="item.unsafe"
+          cf-alt="item.missing"
+        />
+        <p cf-text="item.missing">This text will be cleared.</p>
+      </template>
+    </cf-data>
+  </body>
+</html>

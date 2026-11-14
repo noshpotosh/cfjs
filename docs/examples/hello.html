@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CFJS live example</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="../styles/examples.css" />
+    <script>
+      window.project = {
+        title: "A page made of HTML",
+        description: "Rendered once, in the regular DOM.",
+      };
+    </script>
+    <script defer src="../vendor/cfjs.js"></script>
+  </head>
+  <body>
+    <cf-data source="project" name="item">
+      <template
+        ><h2 cf-text="item.title"></h2>
+        <p cf-text="item.description"></p
+      ></template>
+    </cf-data>
+  </body>
+</html>

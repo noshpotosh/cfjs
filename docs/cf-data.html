@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Data · CFJS</title>
+    <link rel="stylesheet" href="./styles/examples.css" />
+    <script defer src="./vendor/cfjs.js"></script>
+  </head>
+  <body>
+    <cf-include src="./components/shell.html"
+      ><h1>Data</h1>
+      <p>
+        Use <code>cf-data</code> with exactly one of <code>src</code> (HTTP(S)
+        JSON) or <code>source</code> (a global own-property path), plus a valid
+        identifier <code>name</code> and a direct template. Global values,
+        promises and functions are supported; functions are called without a
+        receiver. Loading and error templates use <code>data-state</code>. JSON
+        requests share a page-lifetime cache, time out after ten seconds, and
+        failures may be retried by a new element. Rendering is one-time and
+        atomic; nested data providers resolve independently from globals with
+        their own aliases.
+      </p>
+      <p>
+        <a href="./examples/json.html">JSON example</a> ·
+        <a href="./examples/global.html">Global provider example</a>
+      </p></cf-include
+    >
+  </body>
+</html>
