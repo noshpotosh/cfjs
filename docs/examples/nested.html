@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CFJS live example</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="../styles/examples.css" />
+    <script defer src="../vendor/cfjs.js"></script>
+  </head>
+  <body>
+    <p>
+      Rows prepare sequentially, then appear together in array order. Their
+      included markup and nested loops keep each project’s scope.
+    </p>
+    <cf-data src="../data/examples/projects.json" name="response">
+      <template>
+        <h2 cf-text="response.title"></h2>
+        <cf-loop items="response.projects" as="project">
+          <template>
+            <article class="project">
+              <cf-include src="./project.html"></cf-include>
+              <ul>
+                <cf-loop items="project.tags" as="tag">
+                  <template><li cf-text="tag.label"></li></template>
+                </cf-loop>
+              </ul>
+            </article>
+          </template>
+          <template data-state="empty"><p>No projects yet.</p></template>
+        </cf-loop>
+      </template>
+    </cf-data>
+  </body>
+</html>
