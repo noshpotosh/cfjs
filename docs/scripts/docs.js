@@ -5,6 +5,7 @@ async function initialize() {
   if (initialized || !document.querySelector('#main')) return;
   initialized = true;
   let searchIndex;
+  let editorModule;
   let searchOpener;
   const mobile = matchMedia('(max-width: 767px)');
   const sidebar = document.querySelector('#sidebar');
@@ -111,12 +112,23 @@ async function initialize() {
       const bounds = event.target.getBoundingClientRect();
       if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) closeSearch();
     }
+    const edit = event.target.closest('.edit-example');
+    if (edit) {
+      edit.disabled = true;
+      const example = edit.closest('.examples');
+      try {
+        editorModule ||= import('./editor.js').catch(error => { editorModule = null; throw error; });
+        await (await editorModule).openEditor(example);
+      } catch {
+        example.querySelector('.preview-status').textContent = 'Editor could not load. Original source and preview remain available. Reload to retry.';
+      } finally { edit.disabled = false; }
+    }
     const tab = event.target.closest('[role="tab"]');
     if (tab) selectTab(tab);
     const copy = event.target.closest('.copy-button');
     if (copy) {
       const panel = copy.closest('[role="tabpanel"]');
-      const source = panel.querySelector('code').textContent;
+      const source = panel.editorView ? panel.editorView.state.doc.toString() : panel.querySelector('code').textContent;
       try {
         await navigator.clipboard.writeText(source);
         copy.textContent = 'Copied';
@@ -135,6 +147,10 @@ async function initialize() {
       document.getElementById(sibling.getAttribute('aria-controls')).hidden = !selected;
     }
     tab.focus();
+    if (tab.closest('.examples').exampleEditor) {
+      const panel = document.getElementById(tab.getAttribute('aria-controls'));
+      panel.editorView?.requestMeasure();
+    }
   }
   document.addEventListener('keydown', async event => {
     const typing = event.target.matches('input, textarea, select, [contenteditable]');

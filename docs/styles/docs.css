@@ -709,3 +709,19 @@ body:has(dialog[open]) {
     transition:transform .15s ease
   }
 }
+
+/* Opt-in editors stay within the same file panels at every viewport width. */
+.example-actions { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; padding: .75rem; border-bottom: 1px solid var(--line); }
+.editor-controls:not([hidden]) { display: flex; flex-wrap: wrap; gap: .5rem; }
+.example-actions button { font: inherit; padding: .4rem .65rem; cursor: pointer; }
+.draft-status { font-size: .8rem; flex-basis: 100%; }
+.draft-status:empty, .preview-status:empty { display: none; }
+.preview-status { white-space: pre-wrap; overflow-wrap: anywhere; font-size: .8rem; max-height: 10rem; overflow: auto; margin: 0; padding: .75rem; }
+.editor-host { display: none; min-width: 0; }
+.editing .editor-host { display: block; }
+.editing [role="tabpanel"] > pre { display: none; }
+.cm-editor { font-size: .85rem; background: #fff; color: #202a24; }
+.cm-editor.cm-focused { outline: 2px solid #42684e; outline-offset: -2px; }
+.cm-scroller { max-height: 28rem; min-height: 10rem; }
+.cm-editor .cm-content { padding: .6rem 0; }
+.cm-editor .cm-gutters { background: #f0f3ef; color: #536050; }

@@ -166,12 +166,12 @@
           </p>
           <p>
             Navigation and previous/next links use CFJS data templates. Example
-            panels and heading links are prepared by browser JavaScript. Search
-            indexes topic pages on first use. Documentation consumers need
-            neither npm nor a build. Compare and synchronize
-            <code>docs/vendor/cfjs.js</code> with
-            <code>npm run docs:sync</code> after runtime changes; tests check
-            equality.
+            panels and heading links are prepared by browser JavaScript; search
+            indexes topic pages on first use. CodeMirror is a checked-in browser
+            module loaded on demand. Documentation consumers need neither npm
+            nor a build. When changing the runtime, compare and synchronize
+            <code>docs/vendor/cfjs.js</code> using
+            <code>npm run docs:sync</code>; tests check equality.
           </p>
           <p>
             The old performance audit commands and reports have been removed.
