@@ -7,6 +7,12 @@
     <link rel="icon" href="data:," />
     <link rel="stylesheet" href="../styles/examples.css" />
     <script>
+      window.contributionDay = {
+        className: "contribution-day contribution-day--level3",
+        description: "5 contributions on 2026-11-14",
+        timestamp: "2026-11-14T12:30:00Z",
+        displayDate: "Nov 14, 2026",
+      };
       window.project = {
         title: "View project",
         url: "#project",
@@ -49,6 +55,16 @@
           cf-alt="item.missing"
         />
         <p cf-text="item.missing">This text will be cleared.</p>
+      </template>
+    </cf-data>
+    <cf-data source="contributionDay" name="day">
+      <template>
+        <span cf-class="day.className" cf-title="day.description"></span>
+        <time
+          class="commit-date"
+          cf-datetime="day.timestamp"
+          cf-text="day.displayDate"
+        ></time>
       </template>
     </cf-data>
   </body>

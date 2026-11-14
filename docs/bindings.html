@@ -109,6 +109,34 @@
           </p>
         </div>
       </section>
+      <section class="reference-row" aria-labelledby="cf-class">
+        <div class="explanation">
+          <h2 id="cf-class">cf-class</h2>
+          <p>
+            Replaces the entire <code>class</code> attribute, including static
+            classes. Providers must include any required base classes in
+            <code>className</code>. There is no class merging or special
+            object/array syntax: values use the standard string conversion.
+            Empty strings, null, and missing values remove an existing class
+            attribute. The runnable example above binds contribution classes
+            inside a <code>cf-data</code> context.
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="cf-datetime">
+        <div class="explanation">
+          <h2 id="cf-datetime">cf-datetime</h2>
+          <p>
+            Sets <code>datetime</code> to the supplied string unchanged. Date
+            formatting and validation are the consumer’s responsibility. Empty
+            strings, null, and missing values remove the attribute. On a
+            <code>time</code> element, <code>cf-text</code> independently sets
+            the visible label. Both bindings resolve dotted paths in the current
+            data context, including loop items, and run once with no expression
+            evaluation or reactive updates.
+          </p>
+        </div>
+      </section>
       <section class="reference-row" aria-labelledby="cf-aria">
         <div class="explanation">
           <h2 id="cf-aria">cf-aria-*</h2>

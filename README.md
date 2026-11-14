@@ -55,13 +55,19 @@ nested includes, resolve against the entry document's base URL.
 | [Data](docs/cf-data.html) | Load JSON or resolve a global JavaScript value or function. |
 | [Loops](docs/cf-loop.html) | Render a template for each array item. |
 | [Conditions](docs/cf-if.html) | Select a template using a data property's truthiness. |
-| [Bindings](docs/bindings.html) | Write text, links, image sources, and alternative text. |
+| [Bindings](docs/bindings.html) | Write text, links, image sources, classes, semantic dates, and other supported attributes. |
 | [Lifecycle events](docs/events.html) | Observe successful rendering and failures. |
 
 Include trees and data results prepare off-document and mount atomically.
 Nested work follows document order; separate live includes start independently.
 Successful requests are cached for the page lifetime, while each include gets
 fresh DOM. Failed composition preserves fallback content.
+
+`cf-class` replaces the entire class attribute: providers must include required base
+classes in their value. `cf-datetime` writes the supplied string unchanged; consumers
+handle date formatting and validation. Both remove the destination attribute for an
+empty string, null, or missing value. See the [binding reference and runnable
+example](docs/bindings.html) for use inside data and loop contexts.
 
 ## Boundaries
 
