@@ -286,6 +286,9 @@ const server = http.createServer(async (req, res) => {
     await require('./parallel-includes.cjs')(browser, origin + '/');
     await require('./nested-source.cjs')(browser, origin + '/');
     await require('./cf-data.cjs')(browser, origin + '/');
+    await require('./parallel-data.cjs')(browser, origin + '/');
+    await require('./required-includes.cjs')(browser, origin + '/');
+    await require('./cf-if.cjs')(browser, origin + '/');
     await require('./foundation-docs.cjs')(browser, origin);
     console.log('Browser:', await browser.version());
 
