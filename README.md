@@ -79,6 +79,8 @@ and [migration notes](docs/migration.html) before integrating an existing site.
 
 ## Documentation and examples
 
+Visit the [live documentation and interactive examples](https://noshpotosh.github.io/cfjs/).
+
 Start with the [Quickstart](docs/quickstart.html), then explore
 [composition](docs/compose.html), [data rendering](docs/render-data.html), and
 [repeating templates](docs/repeat.html).
