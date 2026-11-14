@@ -90,6 +90,9 @@ Its examples share their runnable source with the displayed code and offer a
 local editor with isolated previews. See the [editor guide](docs/quickstart.html#editing).
 
 The docs include heading-level search and keyboard-accessible mobile navigation.
+Topic slot content stays hidden until the shared shell is composed, preventing
+an unwrapped-content flash on page loads and navigation. If a shell request
+fails, the retained topic is shown without the shell. Examples load separately.
 
 ```sh
 npm run docs:dev   # http://127.0.0.1:8765/; no npm install needed
