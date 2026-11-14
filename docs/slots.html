@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Slots · CFJS</title>
+    <link rel="stylesheet" href="./styles/examples.css" />
+    <script defer src="./vendor/cfjs.js"></script>
+  </head>
+  <body>
+    <cf-include src="./components/shell.html"
+      ><h1>Slots</h1>
+      <p>
+        Fragments use <code>&lt;slot name="heading"&gt;</code> or an unnamed
+        slot. Supply direct children with a matching
+        <code>slot</code> attribute. The first matching slot receives those
+        children; otherwise its own fallback remains. Unassigned children are
+        discarded. Slots compose once in the light DOM.
+      </p>
+      <p>
+        <a href="./examples/composition.html">Run the composition example</a>
+      </p></cf-include
+    >
+  </body>
+</html>

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Includes · CFJS</title>
+    <link rel="stylesheet" href="./styles/examples.css" />
+    <script defer src="./vendor/cfjs.js"></script>
+  </head>
+  <body>
+    <cf-include src="./components/shell.html"
+      ><h1>Includes</h1>
+      <p>
+        Use
+        <code
+          >&lt;cf-include
+          src="./fragment.html"&gt;Fallback&lt;/cf-include&gt;</code
+        >
+        to compose a fragment. Nested branches prepare in document order;
+        separate live includes start independently. A complete tree mounts
+        atomically. Failures retain the original fallback nodes and listeners.
+        Successful requests are cached; new includes can retry failed requests.
+      </p></cf-include
+    >
+  </body>
+</html>
