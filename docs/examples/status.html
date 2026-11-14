@@ -1,0 +1,11 @@
+<section>
+  <p class="status">Waiting for initialization…</p>
+  <script>
+    (() => {
+      const element =
+        document.currentScript.parentElement.querySelector(".status");
+      element.textContent = "Inline script ran after mounting.";
+    })();
+  </script>
+  <script src="../scripts/examples/status.js"></script>
+</section>

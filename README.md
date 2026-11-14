@@ -6,6 +6,7 @@ Compose trusted HTML fragments in the browser with one script and no build step.
 - [Slots](docs/slots.html)
 - [Paths and requests](docs/paths.html)
 - [Events and lifecycle](docs/events.html)
+- [Scripts and styles](docs/scripts.html)
 
 ## Development
 

@@ -70,11 +70,13 @@ const server = http.createServer(async (req, res) => {
     await page.goto(origin + '/composition/index.html');
     await page.waitForFunction(() => !document.querySelector('cf-include'));
     assert.equal(await page.locator('.counter').count(), 2);
+    await page.locator('button').nth(0).click();
+    assert.deepEqual(await page.locator('.counter button span').allTextContents(), ['1', '0']);
     assert.equal(counterRequests, 1);
     assert.match(await page.locator('footer').innerText(), /nested include/);
     assert.equal(await page.locator('header a').getAttribute('href'), './index.html');
     assert.equal(await page.locator('button').first().evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(38, 63, 48)');
-    console.log('PASS: composition, nested includes, relative links, page CSS, fetch caching');
+    console.log('PASS: composition, nested includes, relative links, page CSS, repeated script instances, fetch caching');
 
     const markup = {
       '/fixtures/external.html': '<div class="external">External</div><script src="/fixtures/external.js"></script><script type="module" src="/fixtures/module.js"></script>',
@@ -91,10 +93,15 @@ const server = http.createServer(async (req, res) => {
       el.textContent = 'Fallback';
       document.body.append(el);
     }, src);
+    await add('/fixtures/external.html');
+    await page.waitForFunction(() => window.externalRuns === 1 && window.moduleRuns === 1);
+    await add('/fixtures/external.html');
+    await page.waitForFunction(() => window.externalRuns === 2);
+    assert.equal(await page.evaluate(() => window.moduleRuns), 1);
     await add('/fixtures/template.html');
     await page.waitForSelector('#inert', { state: 'attached' });
     assert.equal(await page.evaluate(() => window.shouldNotRun), undefined);
-    console.log('PASS: dynamic includes, inert nested templates');
+    console.log('PASS: dynamic includes, relative external scripts, module-once behavior, inert nested templates');
     for (const source of ['/fixtures/cycle.html', '/fixtures/missing.html', null, '/fixtures/atomic.html']) {
       await add(source);
     }
@@ -150,6 +157,7 @@ const server = http.createServer(async (req, res) => {
     ]) assert.equal(await page.locator('#redirected ' + selector).getAttribute(attribute), expected);
     assert.equal(await page.locator('#redirected template').evaluate(el => el.content.querySelector('img').getAttribute('src')), './inert.png');
     assert.equal(hits.get('/never-fetch'), undefined);
+    assert.equal(await page.evaluate(() => window.nestedRuns), 1);
     assert.deepEqual(await page.evaluate(() => window.loads), ['/redirect']);
 
     fixture('/alias-cycle', '', { status: 302, headers: { Location: '/cycle-final' } });
@@ -189,6 +197,42 @@ const server = http.createServer(async (req, res) => {
     assert.equal(hits.get('/retry.html'), 2);
     console.log('PASS: document-relative paths after redirects, unchanged URL attributes, inert fallback includes, redirect cycles, depth limit, invalid sources, preserved fallback listeners, retry');
 
+    fixture('/scripts.html', `<section class="script-order">
+      <script>window.order.push('inline-first'); window.wholeTreePresent = !!document.querySelector('#after-scripts')</script>
+      <script src="/slow-first.js" defer></script><script src="/fast-second.js"></script>
+      <script async src="/async.js"></script>
+      <script>window.order.push('inline-last')</script>
+      <script type="module" src="/external-module.js"></script>
+      <script type="module">window.inlineModules = (window.inlineModules || 0) + 1</script>
+      <script type="application/json" id="json-data">{"ok":true}</script>
+      <p id="after-scripts">All markup is present</p>
+    </section>`);
+    fixture('/slow-first.js', "window.order.push('external-first')", { delay: 250 });
+    fixture('/fast-second.js', "window.order.push('external-second')");
+    fixture('/async.js', "window.order.push('async')");
+    fixture('/external-module.js', "import './dependency.js'; window.externalModules = (window.externalModules || 0) + 1", { delay: 300 });
+    fixture('/dependency.js', 'window.moduleDependency = true');
+    await page.evaluate(() => {
+      window.order = [];
+      document.addEventListener('cf:load', event => {
+        if (event.detail.src === '/scripts.html') window.atLoad = { order: [...window.order], module: window.externalModules || 0 };
+      });
+    });
+    await add('/scripts.html');
+    await page.waitForFunction(() => window.atLoad);
+    assert.deepEqual(await page.evaluate(() => window.atLoad), { order: ['inline-first', 'inline-last'], module: 0 });
+    await page.waitForFunction(() => window.externalModules === 1 && window.order.length === 5 && window.inlineModules === 1);
+    const order = await page.evaluate(() => window.order);
+    assert(order.indexOf('external-first') < order.indexOf('external-second'));
+    assert(order.indexOf('async') < order.indexOf('external-first'));
+    assert(await page.evaluate(() => window.wholeTreePresent && window.moduleDependency));
+    assert.deepEqual(JSON.parse(await page.locator('#json-data').textContent()), { ok: true });
+    await add('/scripts.html');
+    await page.waitForFunction(() => window.inlineModules === 2 && window.order.length === 10);
+    assert.equal(await page.evaluate(() => window.externalModules), 1);
+    assert.equal(hits.get('/scripts.html'), 1);
+    console.log('PASS: inline activation order, complete DOM at execution, ordered external classics, async/defer behavior, cf:load boundary, repeated inline modules, cached external modules and native imports');
+
     fixture('/removed.html', '<p id="removed-result">Do not insert</p><script>window.removedRan = true</script>', { delay: 100 });
     await page.evaluate(() => {
       const el = document.createElement('cf-include');
@@ -200,9 +244,34 @@ const server = http.createServer(async (req, res) => {
     assert.equal(await page.locator('#removed-result').count(), 0);
     assert.equal(await page.evaluate(() => window.removedRan), undefined);
 
+    // Both entry modes, before and after registration, including duplicate runtime loads.
+    for (const mode of ['', 'type="module"']) {
+      fixture('/entry.html', `<!doctype html><cf-include src="/entry-fragment.html"></cf-include>
+        <script ${mode} src="/cfjs.js"></script><script ${mode} src="/cfjs.js"></script>
+        <cf-include src="/entry-fragment.html"></cf-include>`);
+      fixture('/entry-fragment.html', '<span class="entry">Entry</span><script>window.entryRuns = (window.entryRuns || 0) + 1</script>');
+      const entry = await browser.newPage();
+      entry.on('pageerror', error => errors.push(error.message));
+      await entry.goto(origin + '/entry.html');
+      await entry.waitForFunction(() => window.entryRuns === 2);
+      assert.equal(await entry.locator('cf-include').count(), 0);
+      await entry.close();
+    }
+    fixture('/csp.html', `<!doctype html><meta http-equiv="Content-Security-Policy" content="script-src 'nonce-cfjs-test'; object-src 'none'">
+      <script nonce="cfjs-test" src="/cfjs.js"></script><cf-include src="/csp-fragment.html"></cf-include>`);
+    fixture('/csp-fragment.html', '<p id="csp-result">CSP</p><script nonce="cfjs-test">window.nonceRan = true</script><script nonce="cfjs-test" src="/nonce.js"></script>');
+    fixture('/nonce.js', 'window.externalNonceRan = true');
+    const csp = await browser.newPage();
+    csp.on('pageerror', error => errors.push(error.message));
+    await csp.goto(origin + '/csp.html');
+    await csp.waitForFunction(() => window.nonceRan && window.externalNonceRan);
+    await csp.close();
+
     // Newly inserted instances reuse requests but keep independent script state.
     await add('/composition/counter.html');
     await page.waitForFunction(() => document.querySelectorAll('.counter').length === 3);
+    await page.locator('.counter button').last().click();
+    assert.deepEqual(await page.locator('.counter button span').allTextContents(), ['1', '0', '1']);
     assert.equal(counterRequests, 1);
     await add('/composition/missing.html');
     const failed = page.locator('cf-include[src="/composition/missing.html"][data-cf-error]');
@@ -211,7 +280,8 @@ const server = http.createServer(async (req, res) => {
     assert.match(await failed.getAttribute('data-cf-error'), /HTTP 404/);
     assert.match(await page.evaluate(() => window.failures.at(-1)), /HTTP 404/);
     assert.deepEqual(errors, []);
-    console.log('PASS: removed includes, dynamic instances, no unexpected browser errors');
+    console.log('PASS: removed includes, classic/module runtime tags, parser-inserted includes, duplicate runtime loading, CSP nonces, dynamic instances, no unexpected browser errors');
+    await require('./preparation.cjs')(browser, origin + '/');
     await require('./foundation-docs.cjs')(browser, origin);
     console.log('Browser:', await browser.version());
 
