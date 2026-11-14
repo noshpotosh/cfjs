@@ -1,0 +1,21 @@
+{
+  "name": "cfjs",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Browser-native HTML composition, data and loops",
+  "scripts": {
+    "test": "node scripts/sync-docs-runtime.mjs --check && node tests/browser.cjs",
+    "docs:dev": "node scripts/serve-docs.mjs",
+    "docs:sync": "node scripts/sync-docs-runtime.mjs",
+    "docs:check": "node scripts/sync-docs-runtime.mjs --check",
+    "docs:format": "prettier --write \"docs/**/*.html\"",
+    "docs:format:check": "prettier --check \"docs/**/*.html\""
+  },
+  "devDependencies": {
+    "playwright": "^1.65.0",
+    "prettier": "3.10.1"
+  },
+  "engines": {
+    "node": ">=22.19.0"
+  }
+}

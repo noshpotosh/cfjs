@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Events and lifecycle · CFJS</title>
+    <link rel="stylesheet" href="./styles/examples.css" />
+    <script defer src="./vendor/cfjs.js"></script>
+  </head>
+  <body>
+    <cf-include src="./components/shell.html"
+      ><h1>Events and lifecycle</h1>
+      <p>
+        Successful includes emit bubbling <code>cf:load</code> on their former
+        parent with <code>detail.src</code>. Failures set
+        <code>data-cf-error</code> and emit <code>cf:error</code> on the include
+        with <code>detail.error</code>. There is no page-wide completion event
+        or cancellation API.
+      </p></cf-include
+    >
+  </body>
+</html>

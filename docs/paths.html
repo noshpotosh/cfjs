@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Paths and requests · CFJS</title>
+    <link rel="stylesheet" href="./styles/examples.css" />
+    <script defer src="./vendor/cfjs.js"></script>
+  </head>
+  <body>
+    <cf-include src="./components/shell.html"
+      ><h1>Paths and requests</h1>
+      <p>
+        All includes and asset paths resolve against the entry document base
+        URL, including after redirects. Includes require HTTP(S). Circular
+        paths, redirected cycles, nesting beyond 32 levels, missing sources, and
+        fragment base elements fail composition. Literal URL attributes are
+        unchanged.
+      </p></cf-include
+    >
+  </body>
+</html>
