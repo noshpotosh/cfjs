@@ -18,6 +18,17 @@
 body {
   margin:0
 }
+/* Slot content must not paint before the shell supplies its layout. The
+   include is replaced on success; expose its retained content on failure. */
+body[data-topic] > cf-include:not([data-cf-error]) {
+  display:none
+}
+body[data-topic] > cf-include[data-cf-error] {
+  display:block;
+  max-width:1000px;
+  margin:0 auto;
+  padding:28px
+}
 a {
   color:var(--accent);
   text-decoration:none

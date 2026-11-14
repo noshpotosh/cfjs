@@ -60,6 +60,17 @@
             styles.
           </p>
           <p>
+            Keep the stylesheet in each topic's head. It hides the root shell
+            include's supplied content until CFJS replaces it with the composed
+            layout, including nested fragments. This prevents a flash of topic
+            text outside the layout, even before the runtime loads. On an
+            include failure, the retained topic becomes readable without the
+            shell. JavaScript is required; the noscript message remains visible
+            when it is disabled. Navigation data and examples still load
+            separately; this is not a whole-page readiness gate or a client-side
+            router.
+          </p>
+          <p>
             Register topics in <code>data/topics.json</code>, preserve stable
             heading IDs, and update <code>data/legacy-links.json</code> when
             migrating anchors. Navigation and previous/next links render with

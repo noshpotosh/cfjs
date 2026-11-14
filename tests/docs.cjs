@@ -35,6 +35,55 @@ module.exports = async (browser, origin) => {
     assert.equal(await page.locator('[aria-current="page"]').getAttribute('data-nav-topic'), slug);
     failedIncludes.push(...await page.evaluate(() => window.docsFailures));
   }
+  // Hold requests open to inspect the first paint, including a real link navigation.
+  const paintPage = await browser.newPage();
+  async function holdRequest(file) {
+    let release, arrived, finished;
+    const gate = new Promise(resolve => { release = resolve; });
+    const requested = new Promise(resolve => { arrived = resolve; });
+    const handled = new Promise(resolve => { finished = resolve; });
+    const handler = async route => {
+      arrived();
+      await gate;
+      await route.continue();
+      finished();
+    };
+    await paintPage.route(base + file, handler);
+    return { requested, release: async () => {
+      release();
+      await handled;
+      await paintPage.unroute(base + file, handler);
+    } };
+  }
+  const runtime = await holdRequest('vendor/cfjs.js');
+  const shell = await holdRequest('components/shell.html');
+  await paintPage.goto(base + 'index.html', { waitUntil: 'commit' });
+  await runtime.requested;
+  await paintPage.locator('h1').waitFor({ state: 'attached' });
+  await paintPage.waitForFunction(() => [...document.styleSheets].some(sheet => sheet.href?.endsWith('/styles/docs.css')));
+  assert.equal(await paintPage.locator('h1').isVisible(), false, 'No raw topic before runtime registration');
+  await runtime.release();
+  await shell.requested;
+  assert.equal(await paintPage.locator('h1').isVisible(), false, 'No raw topic while shell loads');
+  await shell.release();
+  await paintPage.waitForFunction(() => document.body.dataset.docsReady === 'true' && document.querySelector('aside nav a'));
+  assert(await paintPage.locator('main h1').isVisible());
+  const nested = await holdRequest('components/footer.html');
+  await paintPage.locator('aside a[href="./quickstart.html"]').click({ noWaitAfter: true });
+  await nested.requested;
+  assert.equal(await paintPage.locator('h1').isVisible(), false, 'Navigation waits for nested shell fragments');
+  await nested.release();
+  await paintPage.waitForFunction(() => document.body.dataset.docsReady === 'true');
+  assert(await paintPage.locator('main h1').isVisible());
+  await paintPage.route(base + 'components/shell.html', route => route.fulfill({ status: 503, body: 'Unavailable' }));
+  await paintPage.goto(base + 'index.html');
+  await paintPage.locator('body > cf-include[data-cf-error]').waitFor();
+  assert(await paintPage.locator('h1').isVisible(), 'Failed shell leaves readable topic content');
+  await paintPage.close();
+  const noScriptPage = await browser.newPage({ javaScriptEnabled: false });
+  await noScriptPage.goto(base + 'index.html');
+  assert(await noScriptPage.locator('noscript').isVisible(), 'JavaScript requirement stays visible');
+  await noScriptPage.close();
   // Crawl the rendered site, including client-rendered chrome. Check every local fragment.
   const links = new Set();
   const targets = new Map();
