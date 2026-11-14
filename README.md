@@ -86,6 +86,8 @@ Start with the [Quickstart](docs/quickstart.html), then explore
 The documentation is a separate static site composed by CFJS in the browser.
 Its examples share their runnable source with the displayed code with standalone live previews.
 
+The docs include heading-level search and keyboard-accessible mobile navigation.
+
 ```sh
 npm run docs:dev   # http://127.0.0.1:8765/; no npm install needed
 ```

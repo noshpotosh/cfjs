@@ -66,3 +66,25 @@ export function prepareHeadings() {
     code.innerHTML = highlight(code.textContent, code.className.slice('language-'.length));
   }
 }
+
+// Search fetches authored topic pages only when first opened.
+export async function createSearchIndex() {
+  const topics = await window.docsTopics();
+  const sections = await Promise.all(topics.map(async topic => {
+    const source = await read('./' + topic.slug + '.html');
+    const content = new DOMParser().parseFromString(source, 'text/html');
+    content.querySelectorAll('pre, script, style').forEach(node => node.remove());
+    const topicContent = content.querySelector('body > cf-include');
+    const headings = [...topicContent.querySelectorAll('h1[id], h2[id], h3[id]')];
+    return headings.map((heading, index) => {
+      const range = content.createRange();
+      range.setStartAfter(heading);
+      if (headings[index + 1]) range.setEndBefore(headings[index + 1]);
+      else range.setEndAfter(topicContent.lastChild);
+      return { title: topic.title, heading: heading.textContent.trim(),
+        url: `./${topic.slug}.html#${heading.id}`,
+        text: range.toString().replace(/\s+/g, ' ').trim().slice(0, 4000) };
+    });
+  }));
+  return sections.flat();
+}

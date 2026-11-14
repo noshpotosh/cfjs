@@ -4,7 +4,7 @@ const path = require('node:path');
 module.exports = async (browser, origin) => {
   const base = origin + '/docs/';
   const topics = JSON.parse(await fs.readFile(path.join(__dirname, '../docs/data/topics.json')));
-  const legacy = {};
+  const legacy = JSON.parse(await fs.readFile(path.join(__dirname, '../docs/data/legacy-links.json')));
   const manifest = JSON.parse(await fs.readFile(path.join(__dirname, '../docs/data/examples.json')));
   assert.deepEqual(await fs.readFile(path.join(__dirname, '../docs/vendor/cfjs.js')), await fs.readFile(path.join(__dirname, '../cfjs.js')));
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
@@ -67,6 +67,14 @@ module.exports = async (browser, origin) => {
     if (url.hash && targets.has(relative)) assert(targets.get(relative).has(decodeURIComponent(url.hash.slice(1))), 'Existing anchor: ' + href);
     assert((await page.request.get(url.href.split('#')[0])).ok(), 'Resolvable link: ' + href);
   }
+  // Compatibility mappings are browser redirects, not hidden duplicate sections.
+  for (const [anchor, target] of Object.entries(legacy)) {
+    await page.goto(base + '#' + anchor);
+    await page.waitForURL(base + target);
+    await settled();
+    const url = new URL(page.url());
+    assert(targets.get(url.pathname.split('/').at(-1)).has(url.hash.slice(1)), anchor);
+  }
   await page.setViewportSize({ width: 1440, height: 1000 });
   await ready('cf-data');
   await page.reload();
@@ -80,6 +88,34 @@ module.exports = async (browser, origin) => {
   await page.goForward();
   await settled();
   assert.equal(new URL(page.url()).pathname, '/docs/cf-loop.html');
+  // Heading-level search, prose, no-results, keyboard activation, and focus return.
+  await ready('cf-data');
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.locator('.search-trigger').click();
+  await page.locator('#search-input').fill('cf-data');
+  await page.locator('#search-results a').first().waitFor();
+  assert.match(await page.locator('#search-results').innerText(), /cf-data/);
+  await page.locator('#search-input').fill('cf-if');
+  await page.waitForFunction(() => [...document.querySelectorAll('#search-results a')].some(a => a.getAttribute('href') === './cf-if.html#cf-if'));
+  await page.locator('#search-input').fill('receiver');
+  await page.waitForFunction(() => document.querySelector('#search-results').textContent.includes('receiver'));
+  assert((await page.locator('#search-results a').evaluateAll(nodes => nodes.map(node => node.getAttribute('href')))).includes('./cf-data.html#source'));
+  await page.locator('#search-input').fill('nothing-matches-this-123456');
+  await page.getByText('No results. Try a feature name such as cf-data.').waitFor();
+  assert.equal(await page.locator('#search-results a').count(), 0);
+  await page.keyboard.press('Escape');
+  await page.waitForFunction(() => !document.querySelector('#search-dialog').open);
+  assert(await page.locator('.search-trigger').evaluate(node => node === document.activeElement));
+  await page.keyboard.press('/');
+  assert(await page.locator('#search-input').evaluate(node => node === document.activeElement));
+  await page.locator('#search-input').fill('cf-data');
+  await page.locator('#search-results a').first().waitFor();
+  await page.keyboard.press('ArrowDown');
+  assert(await page.locator('#search-results a').first().evaluate(node => node === document.activeElement));
+  await page.keyboard.press('Enter');
+  await page.waitForURL(/cf-data.html#cf-data$/);
+  await settled();
+  assert(!await page.locator('#search-dialog').evaluate(node => node.open));
   // File tab semantics, exact source, copy success and failure feedback.
   await ready('compose');
   const example = page.locator('[data-example="composition"]');
@@ -101,6 +137,24 @@ module.exports = async (browser, origin) => {
   await page.evaluate(() => Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async () => { throw new Error('Denied'); } } }));
   await example.locator('[role="tabpanel"]:visible .copy-button').click();
   await page.getByRole('status').filter({ hasText: 'Copy failed.' }).waitFor();
+  // Mobile drawer traps focus, closes on Escape, restores focus, and navigates.
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.locator('.menu-button').click();
+  assert.equal(await page.locator('.menu-button').getAttribute('aria-expanded'), 'true');
+  assert(await page.locator('.close-navigation').evaluate(node => node === document.activeElement));
+  await page.keyboard.press('Shift+Tab');
+  assert(await page.locator('aside nav a').last().evaluate(node => node === document.activeElement));
+  await page.keyboard.press('Tab');
+  assert(await page.locator('.close-navigation').evaluate(node => node === document.activeElement));
+  await page.keyboard.press('Escape');
+  assert.equal(await page.locator('.menu-button').getAttribute('aria-expanded'), 'false');
+  assert(await page.locator('.menu-button').evaluate(node => node === document.activeElement));
+  assert(await page.locator('aside').evaluate(node => node.inert));
+  await page.locator('.menu-button').click();
+  await page.locator('aside a[href="./slots.html"]').click();
+  await page.waitForURL(base + 'slots.html');
+  await settled();
+  assert(!await page.locator('body').evaluate(node => node.classList.contains('navigation-open')));
   // Every displayed source panel matches its executed file, across all topics.
   for (const topic of topics) {
     const source = await fs.readFile(path.join(__dirname, '../docs', topic.slug + '.html'), 'utf8');
@@ -136,7 +190,22 @@ module.exports = async (browser, origin) => {
       if (key === 'events') assert.match(await page.locator('output').textContent(), /target: body/);
     }
   }
+  // Lazy search indexes complete topic documents; a failed fetch can be retried.
   const sourcePage = await browser.newPage();
+  let indexedPages = 0;
+  sourcePage.on('request', request => {
+    if (topics.some(topic => request.url() === base + topic.slug + '.html')) indexedPages++;
+  });
+  await sourcePage.goto(base + 'quickstart.html');
+  await sourcePage.waitForFunction(() => document.body.dataset.docsReady === 'true');
+  assert.equal(indexedPages, 1, 'Only the active topic document loads before search');
+  await sourcePage.route(base + 'bindings.html', route => route.fulfill({ status: 503, body: 'Unavailable' }));
+  await sourcePage.locator('.search-trigger').click();
+  await sourcePage.getByText('Search could not load. Try again or browse the topic navigation.').waitFor();
+  await sourcePage.unroute(base + 'bindings.html');
+  await sourcePage.locator('#search-input').fill('cf-src');
+  await sourcePage.locator('#search-results a').first().waitFor();
+  await sourcePage.keyboard.press('Escape');
   // A broken example keeps the topic readable and offers its standalone link.
   await sourcePage.route('**/examples/card.html', route => route.fulfill({ status: 503, body: 'Unavailable' }));
   await sourcePage.goto(base + 'compose.html');
@@ -169,5 +238,5 @@ module.exports = async (browser, origin) => {
   assert.deepEqual(failedRequests, []);
   assert.deepEqual(redirectExampleRequests, [], 'Legacy redirects do not start examples on the outgoing page');
   await page.close();
-  console.log('PASS: documentation topics, local links, history, available interactions, runnable examples and three layouts');
+  console.log('PASS: all docs topics, all links and legacy anchors, subdirectory history, search, copy, tabs, mobile focus, exact example source, live results, three layouts');
 };

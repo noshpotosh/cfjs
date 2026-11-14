@@ -61,9 +61,10 @@
           </p>
           <p>
             Register topics in <code>data/topics.json</code>, preserve stable
-            heading IDs. Navigation and previous/next links render with CFJS
-            providers and templates. Keep runnable HTML and example-specific
-            fragments in <code>examples/</code>, JSON in
+            heading IDs, and update <code>data/legacy-links.json</code> when
+            migrating anchors. Navigation and previous/next links render with
+            CFJS providers and templates. Keep runnable HTML and
+            example-specific fragments in <code>examples/</code>, JSON in
             <code>data/examples/</code>, scripts in
             <code>scripts/examples/</code>, images in <code>assets/</code>, and
             shared example CSS in <code>styles/examples.css</code>.
@@ -78,6 +79,13 @@
             fetches these same files for source panels, so there is one source
             of truth. Use relative URLs in example HTML; the runtime and
             <code>styles/examples.css</code> are fixed preview dependencies.
+          </p>
+          <p>
+            Search fetches and indexes the authored topic pages on first use and
+            caches the index for that page visit. This adds requests when search
+            first opens. Source panels, highlighting, and heading links also run
+            in the browser. There is no generated deployment folder; refresh
+            after editing and serve <code>docs/</code> directly.
           </p>
         </div>
       </section>
@@ -95,8 +103,9 @@
             pinned Prettier version formats HTML using its configured defaults.
             Run <code>npm test</code>. It verifies the docs runtime copy and
             serves source files directly for browser checks covering runtime
-            behavior, topic links, copy and tabs, live examples, and desktop,
-            tablet, and mobile layouts. Visually inspect affected pages too.
+            behavior, topic links, legacy anchors, search, copy, tabs, mobile
+            navigation, live examples, and desktop, tablet, and mobile layouts.
+            Visually inspect affected pages too.
           </p>
           <p>
             Set <code>CHROMIUM_PATH</code> for installed Chrome, or
