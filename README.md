@@ -84,7 +84,8 @@ Start with the [Quickstart](docs/quickstart.html), then explore
 [repeating templates](docs/repeat.html).
 
 The documentation is a separate static site composed by CFJS in the browser.
-Its examples share their runnable source with the displayed code with standalone live previews.
+Its examples share their runnable source with the displayed code and offer a
+local editor with isolated previews. See the [editor guide](docs/quickstart.html#editing).
 
 The docs include heading-level search and keyboard-accessible mobile navigation.
 
@@ -96,7 +97,8 @@ Or point any static HTTP server at `docs/` and serve it unchanged. There is no
 build step or deployment packaging. Runnable HTML examples and fragments live in
 `docs/examples/`, with JSON in `docs/data/examples/`, scripts in
 `docs/scripts/examples/`, images in `docs/assets/`, and shared styling in
-`docs/styles/examples.css`.
+`docs/styles/examples.css`. The editor loads its checked-in CodeMirror module
+on demand without a CDN.
 See [Contributing](docs/contributing.html#authoring) for the documentation
 structure and authoring workflow.
 
@@ -112,7 +114,7 @@ npm test
 ```
 
 The test command verifies the docs runtime copy and serves source files with its own HTTP server. Coverage
-includes runtime behavior, runnable examples, navigation,
+includes runtime behavior, runnable examples, editor interactions, navigation,
 and desktop, tablet, and mobile layouts. Select an engine locally with
 `BROWSER=firefox` or `BROWSER=webkit` after installing its Playwright browser.
 

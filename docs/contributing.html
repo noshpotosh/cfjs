@@ -76,9 +76,10 @@
             such as <code>../data/examples/projects.json</code> and
             <code>../scripts/examples/global.js</code>. The first listed file is
             the HTML entrypoint in <code>examples/</code>. Browser JavaScript
-            fetches these same files for source panels, so there is one source
-            of truth. Use relative URLs in example HTML; the runtime and
-            <code>styles/examples.css</code> are fixed preview dependencies.
+            fetches these same files for source panels and editor tabs, so there
+            is one source of truth. Use relative URLs in example HTML; the
+            runtime and <code>styles/examples.css</code> are fixed preview
+            dependencies.
           </p>
           <p>
             Search fetches and indexes the authored topic pages on first use and
@@ -86,6 +87,37 @@
             first opens. Source panels, highlighting, and heading links also run
             in the browser. There is no generated deployment folder; refresh
             after editing and serve <code>docs/</code> directly.
+          </p>
+        </div>
+      </section>
+      <section class="reference-row" aria-labelledby="editor-preview">
+        <div class="explanation">
+          <h2 id="editor-preview">Example preview implementation</h2>
+          <p>
+            The checked-in CodeMirror browser module loads locally when Edit
+            example is selected. Its license notices and package versions live
+            in <code>vendor/</code>. It has no CDN or npm dependency at runtime;
+            ordinary documentation edits require no bundling.
+          </p>
+          <p>
+            Each Run creates a fresh opaque-origin sandboxed iframe with the
+            fixed runtime and example stylesheet. A preview-only fetch adapter
+            serves the listed HTML and JSON files at their original URLs,
+            preserving include resolution and cycle detection. Listed classic
+            JavaScript and the supplied stylesheet become preview resources,
+            including references in fragments. Parser script order and defer are
+            preserved; fragment scripts retain CFJS's dynamic insertion
+            behavior.
+          </p>
+          <p>
+            Network resources are blocked in edited previews. External
+            dependencies, unlisted local resources, module imports, new files,
+            and renaming are unsupported. Errors appear as text below the
+            preview. Drafts are per-example and last until navigation or reload;
+            there is no persistence, sharing, download, or publishing feature.
+            Editor loading failure leaves source and original previews usable.
+            See the <a href="./quickstart.html#editing">editing guide</a> for
+            controls and keyboard shortcuts.
           </p>
         </div>
       </section>
@@ -105,7 +137,9 @@
             serves source files directly for browser checks covering runtime
             behavior, topic links, legacy anchors, search, copy, tabs, mobile
             navigation, live examples, and desktop, tablet, and mobile layouts.
-            Visually inspect affected pages too.
+            Editor checks cover independent drafts, per-file undo and selection,
+            snapshots, reset and reload, errors, sandbox isolation, keyboard
+            controls, and loading failures. Visually inspect affected pages too.
           </p>
           <p>
             Set <code>CHROMIUM_PATH</code> for installed Chrome, or

@@ -289,6 +289,8 @@ const server = http.createServer(async (req, res) => {
     await require('./cf-data.cjs')(browser, origin + '/');
     await require('./cf-if.cjs')(browser, origin + '/');
     await require('./docs.cjs')(browser, origin);
+    await require('./editor.cjs')(browser, origin);
+    await require('./serve-docs.cjs')(browser);
     await require('./data-basics.cjs')(browser, origin + '/');
     await require('./foundation-docs.cjs')(browser, origin);
     console.log('Browser:', await browser.version());
