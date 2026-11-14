@@ -2,7 +2,7 @@
 // All include and asset paths are relative to the entrypoint document.
 (() => {
   // Markup conventions and runtime limits.
-  const TAGS = { data: 'cf-data', include: 'cf-include', loop: 'cf-loop' };
+  const TAGS = { data: 'cf-data', include: 'cf-include', loop: 'cf-loop', condition: 'cf-if' };
   const BINDINGS = { text: 'cf-text', href: 'cf-href', src: 'cf-src', alt: 'cf-alt' };
   const BINDING_PREFIX = 'cf-';
   const ERROR_ATTRIBUTE = 'data-cf-error';
@@ -12,6 +12,7 @@
     loading: ':scope > template[data-state="loading"]',
     error: ':scope > template[data-state="error"]',
     empty: ':scope > template[data-state="empty"]',
+    otherwise: ':scope > template[data-state="else"]',
   };
   const HTTP_PROTOCOLS = ['http:', 'https:'];
   const LINK_PROTOCOLS = [...HTTP_PROTOCOLS, 'mailto:', 'tel:'];
@@ -191,6 +192,10 @@
 
         if (!items.length) appendEmptyLoopContent(element, output);
         element.replaceWith(output);
+      } else if (element.matches(TAGS.condition)) {
+        const output = selectConditionContent(element, context);
+        await renderBindings(output, context);
+        element.replaceWith(output);
       } else if (element.matches(TAGS.include)) {
         const includedContent = await composeIncludeFragment(element.getAttribute('src'), [], 0, [...element.childNodes]);
         await renderBindings(includedContent, context);
@@ -298,6 +303,16 @@
   function appendEmptyLoopContent(element, output) {
     const emptyTemplate = element.querySelector(TEMPLATES.empty);
     if (emptyTemplate) output.append(emptyTemplate.content.cloneNode(true));
+  }
+
+  function selectConditionContent(element, context) {
+    const test = element.getAttribute('test');
+    if (!test?.trim()) throw new Error('cf-if requires a test');
+    const template = element.querySelector(TEMPLATES.content);
+    if (!template) throw new Error('cf-if requires a template');
+    const selectedTemplate = resolveBindingPath(context, test) ? template
+      : element.querySelector(TEMPLATES.otherwise);
+    return selectedTemplate ? selectedTemplate.content.cloneNode(true) : document.createDocumentFragment();
   }
 
   /**

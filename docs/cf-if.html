@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Conditions · CFJS</title>
+    <link rel="stylesheet" href="./styles/examples.css" />
+    <script defer src="./vendor/cfjs.js"></script>
+  </head>
+  <body>
+    <cf-include src="./components/shell.html"
+      ><h1>Conditions</h1>
+      <p>
+        Inside data rendering, <code>cf-if test="item.visible"</code> selects
+        its direct template by JavaScript truthiness, or an optional
+        <code>template data-state="else"</code>. The test is a property path,
+        not an expression. Only selected branches render; standalone conditions
+        and static empty-state content are not evaluated. Browsers may preload
+        literal URLs in unselected templates; use cf-src to defer image
+        assignment.
+      </p>
+      <p>
+        <a href="./examples/conditional.html">Run conditions</a>
+      </p></cf-include
+    >
+  </body>
+</html>

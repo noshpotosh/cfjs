@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CFJS live example</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="../styles/examples.css" />
+    <script defer src="../vendor/cfjs.js"></script>
+  </head>
+  <body>
+    <script>
+      window.conditionalProjects = [
+        {
+          title: "Live project",
+          liveURL: "https://example.com/",
+          featured: true,
+        },
+        { title: "Local project", liveURL: "" },
+      ];
+    </script>
+    <cf-data source="conditionalProjects" name="projects">
+      <template>
+        <cf-loop items="projects" as="project">
+          <template>
+            <p>
+              <cf-if test="project.liveURL">
+                <template>
+                  <a cf-href="project.liveURL" cf-text="project.title"></a>
+                  <cf-if test="project.featured"
+                    ><template><strong>Featured</strong></template></cf-if
+                  >
+                </template>
+                <template data-state="else"
+                  ><span cf-text="project.title"></span> — Coming soon</template
+                >
+              </cf-if>
+            </p>
+          </template>
+        </cf-loop>
+      </template>
+    </cf-data>
+  </body>
+</html>
