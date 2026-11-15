@@ -28,3 +28,12 @@ A lot of the inspiration (and the "CF" in the name) comes from ColdFusion, an ol
 - **Performance testing and optimization.** I haven't really looked at performance yet, so I want to measure it properly before guessing.
 - **A light redesign of the API.** In particular, I want to clean up the syntax for templating values that come from a `<cf-data>` tag.
 - **Many more tags.** I picture a small core that adds as little to HTML as possible, plus optional add-on tag sets you can bring in to do some absolutely wild stuff.
+
+## Further reading
+
+A lot of what makes CFJS small is already built into the browser. These MDN articles explain the pieces behind it:
+
+- **[Using custom elements](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements).** `<cf-include>` and `<cf-data>` extend `HTMLElement` and start their work through `connectedCallback()`. CFJS registers those two elements internally; loop and condition tags are handled by the renderer.
+- **[The HTML template element](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/template).** CFJS clones a template's `.content` for each loop item or data result. Loading, error, and conditional states use the same browser-native building block.
+- **[Using templates and slots](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_templates_and_slots).** Named and default slots let a shared fragment accept page-specific content, with fallback content when nothing is supplied. CFJS implements that convention through one-time replacement in the regular DOM; it doesn't use native Shadow DOM slot distribution.
+- **[DocumentFragment](https://developer.mozilla.org/en-US/docs/Web/API/DocumentFragment).** CFJS prepares nested includes and data results in detached fragments before mounting them. That lets an include tree finish composing before it replaces the fallback content on the page.
