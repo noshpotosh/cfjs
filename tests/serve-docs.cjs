@@ -30,7 +30,7 @@ module.exports = async browser => {
     });
     await page.goto(base + 'quickstart.html#editing');
     await page.waitForFunction(() => document.body.dataset.docsReady === 'true' && !document.querySelector('cf-data[aria-busy]'));
-    assert.equal(await page.locator('aside nav a').count(), 18);
+    assert.equal(await page.locator('aside nav a').count(), 17);
     assert.equal(await page.locator('[aria-current="page"]').getAttribute('data-nav-topic'), 'quickstart');
     const example = page.locator('[data-example="hello"]');
     await example.getByRole('button', { name: 'Edit example', exact: true }).click();

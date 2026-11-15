@@ -7,7 +7,6 @@
   "lifecycle": "events.html#events",
   "limits": "troubleshooting.html#troubleshooting",
   "migration": "migration.html#migration",
-  "contributing": "contributing.html#contributing",
   "start-title": "index.html#index",
   "includes-title": "cf-include.html#cf-include",
   "data-title": "cf-data.html#cf-data",
@@ -15,6 +14,5 @@
   "bindings-title": "bindings.html#bindings",
   "lifecycle-title": "events.html#events",
   "limits-title": "troubleshooting.html#troubleshooting",
-  "migration-title": "migration.html#migration",
-  "contributing-title": "contributing.html#contributing"
+  "migration-title": "migration.html#migration"
 }
