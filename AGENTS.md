@@ -1,19 +1,51 @@
 # Developing CFJS
 
+CFJS is a browser-only HTML composition runtime shipped as one readable file: root `cfjs.js` is the canonical runtime. `docs/` is a static documentation site that CFJS itself composes in the browser. `tests/*.cjs` are Playwright suites run through `tests/browser.cjs`. Node 22.19+ is only for tooling; scripts live in `package.json`.
+
+Setup: `npm ci && npx playwright install chromium`. Serve docs with `npm run docs:dev` (http://127.0.0.1:8765/).
+
 Write simple, semantic code that is easy to understand and tweak. Prefer meaningful names and straightforward implementations over abstractions.
 
-## Branch workflow
+## Product boundaries
 
-- Start feature branches from the latest `origin/develop`, using the `codex/` prefix for agent work. Open feature PRs into `develop`, not `main`.
-- Do not commit or push directly to `main` or `develop`. Both branches require pull requests, including for administrators. Do not bypass protection, force-push, or delete either branch.
-- Run checks appropriate to the change before merging. Resolve review feedback and pass any required GitHub checks; branch protection currently requires PRs but does not require approving reviews or CI checks.
-- Squash-merge feature PRs into `develop`. Promote changes through a `develop` → `main` PR, using a merge commit to preserve shared history. Do not promote or publish without a user request.
-- If changes land only on `main`, sync them back through a `main` → `develop` PR using a merge commit before starting another feature branch. Never squash or rebase sync PRs.
+- Keep all rendering in the browser at runtime. CFJS has no static compiler, assembly mode, or server renderer, by design.
+- Serve `docs/` exactly as authored. It needs no build step, frontend framework, hosting service, deployment packaging, or benchmark tooling; any static HTTP server works, including from a subdirectory.
 
-## Documentation is part of the feature
+## Branches and pull requests
 
-Keeping the developer docs current is mission critical. Any public behavior change must update `docs/`, relevant runnable examples, README guidance, and browser coverage in the same task. Document actual behavior and limitations, not intended future features. Record breaking changes in the docs' migration section. Never mark a feature complete with stale docs.
+- Start each feature branch from the latest `origin/develop`, prefixed with the agent's name: `codex/…` for Codex, `claude/…` for Claude Code.
+- Open feature PRs into `develop` and squash-merge them after review feedback is resolved and checks pass.
+- Promote through a `develop` → `main` PR with a merge commit, only when the user asks.
+- If changes land only on `main`, sync them back through a `main` → `develop` PR with a merge commit before starting another feature branch. Sync PRs are never squashed or rebased.
+- `main` and `develop` change only through pull requests: never push to them directly, force-push, delete, or bypass their protection.
 
-CFJS is browser-only: do not add a static compiler, assembly mode, or server renderer. The docs are a directly servable static site composed by CFJS in the browser from `docs/`. No hosted site service, frontend framework, build step, or deployment packaging is required. `npm run docs:dev` serves source unchanged. Each root topic HTML file contains its own content inside the shared `components/shell.html` include; do not split topics into separate entrypoint and content files. Keep metadata in `data/`, browser code in `scripts/`, CSS in `styles/`, and portable dependencies in `vendor/`. Keep HTML before JavaScript and CSS in reusable component fragments. Verify docs examples and mobile layout with `npm test`. Do not publish without a user request.
+## Changing the runtime (`cfjs.js`)
 
-The docs vendor runtime must also remain byte-identical to root `cfjs.js`. Compare divergent work first, then use `npm run docs:sync` after runtime changes. `npm run docs:check` and `npm test` check equality. CodeMirror is a checked-in browser module with licenses and provenance in `docs/vendor/`; ordinary docs edits must not require bundling. Do not restore the removed historical performance reports or benchmark toolchain for v0.1.
+Root `cfjs.js` has two portable, byte-identical copies, never symlinks: `docs/vendor/cfjs.js` and the sibling portfolio's `../portfolio/src/vendor/cfjs.js`.
+
+1. Compare any divergent copy against root first, so work isn't overwritten.
+2. Run `npm run docs:sync` here.
+3. In `../portfolio`, run `npm run cfjs:sync`, `npm run cfjs:check`, and its unit and browser tests.
+4. If the portfolio is unavailable, report its verification as outstanding.
+
+## Changing the docs site (`docs/`)
+
+- **Topics:** each root topic HTML file holds its own content inside the shared `components/shell.html` include. Edit the topic in that one file. Keep the head stylesheet that hides the slotted topic until the shell composes. Register topics in `data/topics.json`.
+- **Anchors:** keep heading IDs stable. When an anchor moves or disappears, update `data/legacy-links.json`; `tests/docs.cjs` follows every entry.
+- **Layout:** metadata in `data/`, browser code in `scripts/`, CSS in `styles/`, portable dependencies in `vendor/`. In reusable component fragments, place HTML before JavaScript and CSS.
+- **Runnable examples:** HTML entrypoints and fragments go in `examples/`, JSON in `data/examples/`, scripts in `scripts/examples/`, images in `assets/`, shared CSS in `styles/examples.css`. Register files in `data/examples.json` with paths relative to `examples/`, listing the HTML entrypoint first, and reference the key with `data-example`. Source panels and the editor fetch these same files, so they are the single source of truth. Use relative URLs.
+- **CodeMirror** is a checked-in browser module in `docs/vendor/`, with its licenses and provenance alongside it. Docs edits need no bundling.
+
+## Definition of done
+
+A change is done only when every item holds:
+
+- [ ] Any public behavior change updates its reference topic, related guides, README, runnable examples, and browser coverage, documenting actual behavior and limitations. Breaking changes are recorded in `docs/migration.html`.
+- [ ] `npm run docs:format:check` passes; fix with `npm run docs:format`.
+- [ ] `npm test` passes. It checks that `docs/vendor/cfjs.js` matches root, then runs the runtime, docs, examples, editor, and desktop/tablet/mobile layout suites. A run proves only its engine: select others with `BROWSER=firefox` / `BROWSER=webkit`, or `CHROMIUM_PATH` for installed Chrome.
+- [ ] Affected pages are inspected visually, including at mobile width.
+- [ ] Runtime changes completed every step in "Changing the runtime".
+
+## Release
+
+Version 0.1.0 is pending; license selection and publication are separate steps. No CI workflow is configured, so checks run locally. The npm package stays private. Publish, promote, or host the docs only when the user asks.

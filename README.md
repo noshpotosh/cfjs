@@ -110,7 +110,7 @@ build step or deployment packaging. Runnable HTML examples and fragments live in
 `docs/scripts/examples/`, images in `docs/assets/`, and shared styling in
 `docs/styles/examples.css`. The editor loads its checked-in CodeMirror module
 on demand without a CDN.
-See [Contributing](docs/contributing.html#authoring) for the documentation
+See [AGENTS.md](AGENTS.md#changing-the-docs-site-docs) for the documentation
 structure and authoring workflow.
 
 ## Development
@@ -129,7 +129,7 @@ includes runtime behavior, runnable examples, editor interactions, navigation,
 and desktop, tablet, and mobile layouts. Select an engine locally with
 `BROWSER=firefox` or `BROWSER=webkit` after installing its Playwright browser.
 
-See [Contributing](docs/contributing.html) for the repository map, browser options,
+See [AGENTS.md](AGENTS.md) for the repository map, branch workflow, browser options,
 documentation workflow, and runtime synchronization. See the
 [performance advice](docs/performance.html) for keeping pages responsive.
 
