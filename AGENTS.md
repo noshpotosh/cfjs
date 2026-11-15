@@ -21,12 +21,7 @@ Write simple, semantic code that is easy to understand and tweak. Prefer meaning
 
 ## Changing the runtime (`cfjs.js`)
 
-Root `cfjs.js` has two portable, byte-identical copies, never symlinks: `docs/vendor/cfjs.js` and the sibling portfolio's `../portfolio/src/vendor/cfjs.js`.
-
-1. Compare any divergent copy against root first, so work isn't overwritten.
-2. Run `npm run docs:sync` here.
-3. In `../portfolio`, run `npm run cfjs:sync`, `npm run cfjs:check`, and its unit and browser tests.
-4. If the portfolio is unavailable, report its verification as outstanding.
+`docs/vendor/cfjs.js` is a portable, byte-identical copy of root `cfjs.js`, never a symlink. If the two have diverged, compare them first so work isn't overwritten, then run `npm run docs:sync`.
 
 ## Changing the docs site (`docs/`)
 
