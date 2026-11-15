@@ -2,6 +2,14 @@
 
 Write simple, semantic code that is easy to understand and tweak. Prefer meaningful names and straightforward implementations over abstractions.
 
+## Branch workflow
+
+- Start feature branches from the latest `origin/develop`, using the `codex/` prefix for agent work. Open feature PRs into `develop`, not `main`.
+- Do not commit or push directly to `main` or `develop`. Both branches require pull requests, including for administrators. Do not bypass protection, force-push, or delete either branch.
+- Run checks appropriate to the change before merging. Resolve review feedback and pass any required GitHub checks; branch protection currently requires PRs but does not require approving reviews or CI checks.
+- Squash-merge feature PRs into `develop`. Promote changes through a `develop` → `main` PR, using a merge commit to preserve shared history. Do not promote or publish without a user request.
+- If changes land only on `main`, sync them back through a `main` → `develop` PR using a merge commit before starting another feature branch. Never squash or rebase sync PRs.
+
 ## Documentation is part of the feature
 
 Keeping the developer docs current is mission critical. Any public behavior change must update `docs/`, relevant runnable examples, README guidance, and browser coverage in the same task. Document actual behavior and limitations, not intended future features. Record breaking changes in the docs' migration section. Never mark a feature complete with stale docs.
